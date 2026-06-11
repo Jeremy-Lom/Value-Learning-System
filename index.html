@@ -6,71 +6,57 @@
 <title>Value Learning System</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-
 body{background:#1f1f1f;color:white;font-family:Segoe UI;margin:0}
-
 .header{background:#173454;padding:15px 20px;font-size:24px;font-weight:bold}
-
 .container{padding:20px}
-
 .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-
 .card,.panel{background:#2b2b2b;border-radius:10px;padding:15px}
-
 .value{font-size:32px;font-weight:bold}
-
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:15px}
-
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-
 input,select,textarea{width:100%;padding:8px;border:none;border-radius:5px}
-
 button{background:#1976d2;color:white;border:none;padding:10px 15px;border-radius:5px;cursor:pointer}
-
 table{width:100%;border-collapse:collapse}
-
 th,td{border:1px solid #444;padding:8px}
-
 th{background:#173454}
-
 #calidad{display:none}
 </style>
 </head>
 <body>
- 
+
 <div class="header">PROCORE | Lecciones Aprendidas</div>
- 
+
 <div class="container">
- 
+
 <div class="cards">
 <div class="card">Ahorros Acumulados<div class="value">$0</div></div>
 <div class="card">Costos de Falla<div class="value">$0</div></div>
 <div class="card">Impacto Neto<div class="value">$0</div></div>
 <div class="card">Registros Totales<div class="value" id="totalRegistros">0</div></div>
 </div>
- 
+
 <div class="grid">
 <div class="panel"><canvas id="g1"></canvas></div>
 <div class="panel"><canvas id="g2"></canvas></div>
 <div class="panel"><canvas id="g3"></canvas></div>
 <div class="panel"><canvas id="g4"></canvas></div>
 </div>
- 
+
 <div class="panel">
 <h2>Registrar Hallazgo</h2>
- 
+
 <div class="form-grid">
- 
+
 <div>
 <label>Folio</label>
 <input id="folio" readonly>
 </div>
- 
+
 <div>
 <label>Fecha Registro</label>
 <input id="fechaRegistro" readonly>
 </div>
- 
+
 <div>
 <label>Tipo de Registro</label>
 <select id="tipo" onchange="actualizarFolio()">
@@ -81,17 +67,17 @@ th{background:#173454}
 <option value="OB">Observación</option>
 </select>
 </div>
- 
+
 <div>
 <label>Número de Proyecto</label>
 <input id="numeroProyecto">
 </div>
- 
+
 <div>
 <label>Nombre de Proyecto</label>
 <input id="nombreProyecto">
 </div>
- 
+
 <div>
 <label>Fase</label>
 <select>
@@ -106,7 +92,7 @@ th{background:#173454}
 <option>Otros</option>
 </select>
 </div>
- 
+
 <div>
 <label>Departamento</label>
 <select>
@@ -120,7 +106,7 @@ th{background:#173454}
 <option>Compras</option>
 </select>
 </div>
- 
+
 <div>
 <label>Impacto Económico</label>
 <select id="impacto" onchange="impactoChange()">
@@ -129,7 +115,7 @@ th{background:#173454}
 <option>Sin impacto económico</option>
 </select>
 </div>
- 
+
 <div id="monedaDiv">
 <label>Moneda</label>
 <select>
@@ -137,34 +123,40 @@ th{background:#173454}
 <option>USD</option>
 </select>
 </div>
- 
+
 <div id="montoDiv">
 <label>Monto</label>
 <input type="number">
 </div>
- 
+
 </div>
- 
+
 <br>
- 
+
 <label>Descripción Hallazgo</label>
 <textarea rows="4"></textarea>
- 
+
 <br><br>
- 
+
+<label>Evidencia</label>
+<input type="file" id="evidencia" multiple accept=".jpg,.jpeg,.png,.pdf,.xlsx,.xls,.doc,.docx">
+<div id="listaArchivos" style="margin-top:10px"></div>
+
+<br><br>
+
 <button onclick="mostrarCalidad()">Seguimiento Calidad</button>
- 
+
 <div id="calidad">
 <hr>
 <h3>Seguimiento Calidad</h3>
- 
+
 <div class="form-grid">
- 
+
 <div>
 <label>Responsable</label>
 <input>
 </div>
- 
+
 <div>
 <label>Estatus</label>
 <select>
@@ -173,127 +165,173 @@ th{background:#173454}
 <option>Cerrado</option>
 </select>
 </div>
- 
+
 <div>
 <label>Fecha Implementación</label>
 <input type="date">
 </div>
- 
+
 <div>
 <label>Fecha Cierre</label>
 <input type="date">
 </div>
- 
+
 <div>
 <label>Nombre quien cierra</label>
 <input>
 </div>
- 
+
 </div>
- 
+
 <label>Acción Correctiva</label>
 <textarea rows="3"></textarea>
- 
+
 </div>
- 
+
 <br><br>
- 
+
 <button onclick="guardar()">Guardar Registro</button>
- 
+
 </div>
- 
+
 <div class="panel">
 <h2>Registros</h2>
+
+<h3>Filtros</h3>
+
+<div class="form-grid">
+<div>
+<label>Folio</label>
+<input id="filtroFolio" onkeyup="filtrar()">
+</div>
+
+<div>
+<label>Tipo</label>
+<select id="filtroTipo" onchange="filtrar()">
+<option value="">Todos</option>
+<option value="FA">Falla</option>
+<option value="LA">Lección Aprendida</option>
+<option value="BP">Buena Práctica</option>
+<option value="RT">Retrabajo</option>
+<option value="OB">Observación</option>
+</select>
+</div>
+
+<div>
+<label>Proyecto</label>
+<input id="filtroProyecto" onkeyup="filtrar()">
+</div>
+
+<div>
+<label>&nbsp;</label>
+<button onclick="limpiarFiltros()">Limpiar Filtros</button>
+</div>
+</div>
+<br>
 <table>
 <thead>
 <tr>
 <th>Folio</th>
 <th>Tipo</th>
-<th>Proyecto</th>
+<th>Proyecto</th><th>Evidencias</th>
 </tr>
 </thead>
 <tbody id="tabla"></tbody>
 </table>
 </div>
- 
+
 </div>
- 
+
 <script>
-
 let consecutivo=1;
-
+let consecutivo=1;
 let registros=[];
- 
+
+document.addEventListener('change',function(e){
+ if(e.target && e.target.id==='evidencia'){
+   let archivos=[...e.target.files];
+   document.getElementById('listaArchivos').innerHTML=archivos.map(a=>`<div>📎 ${a.name}</div>`).join('');
+ }
+});
+
 function actualizarFolio(){
-
-let tipo=document.getElementById('tipo').value;
-
-let year=new Date().getFullYear();
-
-document.getElementById('folio').value=year+"-"+tipo+"-"+String(consecutivo).padStart(5,'0');
-
+ let tipo=document.getElementById('tipo').value;
+ let year=new Date().getFullYear();
+ document.getElementById('folio').value=year+"-"+tipo+"-"+String(consecutivo).padStart(5,'0');
 }
- 
+
 function impactoChange(){
-
-let sinImpacto=document.getElementById('impacto').value==="Sin impacto económico";
-
-document.getElementById('monedaDiv').style.display=sinImpacto?"none":"block";
-
-document.getElementById('montoDiv').style.display=sinImpacto?"none":"block";
-
+ let sinImpacto=document.getElementById('impacto').value==="Sin impacto económico";
+ document.getElementById('monedaDiv').style.display=sinImpacto?"none":"block";
+ document.getElementById('montoDiv').style.display=sinImpacto?"none":"block";
 }
- 
+
 function mostrarCalidad(){
-
-let div=document.getElementById('calidad');
-
-div.style.display=(div.style.display==="block")?"none":"block";
-
+ let div=document.getElementById('calidad');
+ div.style.display=(div.style.display==="block")?"none":"block";
 }
- 
+
 function guardar(){
 
-registros.push({
+ let archivos=[...document.getElementById('evidencia').files];
 
+ registros.push({
   folio:document.getElementById('folio').value,
-
   tipo:document.getElementById('tipo').value,
+  proyecto:document.getElementById('numeroProyecto').value+" - "+document.getElementById('nombreProyecto').value,
+  evidencia:archivos.map(a=>a.name)
+ });
 
-  proyecto:document.getElementById('numeroProyecto').value+" - "+document.getElementById('nombreProyecto').value
+ consecutivo++;
+ actualizarFolio();
 
-});
- 
-consecutivo++;
+ document.getElementById('totalRegistros').innerText=registros.length;
 
-actualizarFolio();
- 
-document.getElementById('totalRegistros').innerText=registros.length;
- 
-document.getElementById('tabla').innerHTML=registros.map(r=>
+ filtrar();
 
-`<tr><td>${r.folio}</td><td>${r.tipo}</td><td>${r.proyecto}</td></tr>`
-
-).join('');
-
+ document.getElementById('evidencia').value='';
+ document.getElementById('listaArchivos').innerHTML='';
 }
- 
+
+function filtrar(){
+
+ let folio=document.getElementById('filtroFolio').value.toLowerCase();
+ let tipo=document.getElementById('filtroTipo').value;
+ let proyecto=document.getElementById('filtroProyecto').value.toLowerCase();
+
+ let filtrados=registros.filter(r=>
+ (folio==='' || r.folio.toLowerCase().includes(folio)) &&
+ (tipo==='' || r.tipo===tipo) &&
+ (proyecto==='' || r.proyecto.toLowerCase().includes(proyecto))
+ );
+
+ document.getElementById('tabla').innerHTML=filtrados.map(r=>
+ `<tr>
+   <td>${r.folio}</td>
+   <td>${r.tipo}</td>
+   <td>${r.proyecto}</td>
+   <td>${r.evidencia ? r.evidencia.length : 0}</td>
+ </tr>`
+ ).join('');
+}
+
+function limpiarFiltros(){
+ document.getElementById('filtroFolio').value='';
+ document.getElementById('filtroTipo').value='';
+ document.getElementById('filtroProyecto').value='';
+ filtrar();
+}
+
 document.getElementById('fechaRegistro').value=new Date().toLocaleDateString();
-
 actualizarFolio();
-
 impactoChange();
- 
+
 new Chart(g1,{type:'bar',data:{labels:['Sin datos'],datasets:[{data:[0]}]}});
-
 new Chart(g2,{type:'doughnut',data:{labels:['FA','LA','BP','RT','OB'],datasets:[{data:[0,0,0,0,0]}]}});
-
 new Chart(g3,{type:'bar',data:{labels:['Sin datos'],datasets:[{data:[0]}]}});
-
 new Chart(g4,{type:'line',data:{labels:['Sin datos'],datasets:[{data:[0]}]}});
 </script>
- 
+
 </body>
 </html>
 
- 
