@@ -1,11 +1,208 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-<title>Prueba</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Value Learning System</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+
+body{background:#1f1f1f;color:#fff;font-family:Segoe UI;margin:0}
+
+.header{background:#173454;padding:15px 20px;font-size:24px;font-weight:bold}
+
+.container{padding:20px}
+
+.card{background:#2b2b2b;padding:15px;border-radius:10px}
+
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:15px}
+
+.panel{background:#2b2b2b;padding:15px;border-radius:10px;margin-top:15px}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+input,select,textarea{width:100%;padding:8px;border:none;border-radius:5px}
+
+table{width:100%;border-collapse:collapse}
+
+th,td{border:1px solid #444;padding:8px}
+
+th{background:#173454}
+
+button{padding:10px 15px;background:#1976d2;color:white;border:none;border-radius:5px}
+</style>
 </head>
-<body style="background:black;color:white;">
-<h1>FUNCIONA GITHUB PAGES</h1>
-<p>Si ves este mensaje, ya quedó el index.html.</p>
+<body>
+<div class="header">PROCORE | Lecciones Aprendidas - Impacto Kaizen</div>
+<div class="container">
+<div class="cards">
+<div class="card">Ahorros<br><h2>$284,500</h2></div>
+<div class="card">Costos de falla<br><h2>$97,200</h2></div>
+<div class="card">Registros<br><h2 id="total">0</h2></div>
+<div class="card">Impacto neto<br><h2>$187,300</h2></div>
+</div>
+ 
+<div class="grid">
+<div class="panel"><canvas id="g1"></canvas></div>
+<div class="panel"><canvas id="g2"></canvas></div>
+<div class="panel"><canvas id="g3"></canvas></div>
+<div class="panel"><canvas id="g4"></canvas></div>
+</div>
+ 
+<div class="panel">
+<h2>Registro</h2>
+<div class="form-grid">
+<div><label>Folio</label><input id="folio" readonly></div>
+<div><label>Fecha Registro</label><input id="fecha" readonly></div>
+ 
+<div><label>Tipo Registro</label>
+<select id="tipo" onchange="actualizarFolio()">
+<option value="FA">Falla</option>
+<option value="LA">Lección Aprendida</option>
+<option value="BP">Buena Práctica</option>
+<option value="RT">Retrabajo</option>
+<option value="OB">Observación</option>
+</select></div>
+ 
+<div><label>No. Proyecto</label><input id="numProyecto"></div>
+<div><label>Nombre Proyecto</label><input id="nomProyecto"></div>
+ 
+<div><label>Fase</label>
+<select>
+<option>Liberación de dibujo</option>
+<option>Estructural, acero o pintura</option>
+<option>Montaje mecánico</option>
+<option>Montaje eléctrico</option>
+<option>Montaje control</option>
+<option>Inspecciones mecánicas</option>
+<option>Inspecciones eléctricas</option>
+<option>Inspecciones control</option>
+<option>Otros</option>
+</select></div>
+ 
+<div><label>Departamento</label>
+<select>
+<option>Producción</option>
+<option>Ingeniería F&P</option>
+<option>Ingeniería HVAC</option>
+<option>ADP</option>
+<option>RH</option>
+<option>Calidad</option>
+<option>Procesos</option>
+<option>Compras</option>
+</select></div>
+ 
+<div><label>Impacto Económico</label>
+<select id="impacto" onchange="cambiarImpacto()">
+<option>Costo de falla</option>
+<option>Ahorro / Buena práctica</option>
+<option>Sin impacto económico</option>
+</select></div>
+ 
+<div id="bloqueMoneda">
+<label>Moneda</label>
+<select id="moneda">
+<option>MXN</option>
+<option>USD</option>
+</select>
+</div>
+ 
+<div id="bloqueMonto">
+<label>Monto</label>
+<input type="number" id="monto">
+</div>
+ 
+<div><label>Responsable Calidad</label><input></div>
+<div><label>Estatus</label>
+<select>
+<option>Abierto</option>
+<option>En proceso</option>
+<option>Cerrado</option>
+</select></div>
+ 
+<div><label>Fecha Implementación</label><input type="date"></div>
+<div><label>Fecha Cierre</label><input type="date"></div>
+<div><label>Nombre quien cierra</label><input></div>
+</div>
+ 
+<br>
+<textarea placeholder="Descripción"></textarea><br><br>
+<textarea placeholder="Acción Correctiva / Preventiva"></textarea><br><br>
+<button onclick="guardar()">Guardar Registro</button>
+</div>
+ 
+<div class="panel">
+<table>
+<thead><tr><th>Folio</th><th>Tipo</th><th>Proyecto</th></tr></thead>
+<tbody id="tabla"></tbody>
+</table>
+</div>
+</div>
+ 
+<script>
+
+let consecutivo=1;
+
+let registros=[];
+ 
+function actualizarFolio(){
+
+let tipo=document.getElementById('tipo').value;
+
+document.getElementById('folio').value=tipo+'-'+String(consecutivo).padStart(4,'0')+'-2026';
+
+}
+ 
+function cambiarImpacto(){
+
+const valor=document.getElementById('impacto').value;
+
+const ocultar=(valor==='Sin impacto económico');
+
+document.getElementById('bloqueMoneda').style.display=ocultar?'none':'block';
+
+document.getElementById('bloqueMonto').style.display=ocultar?'none':'block';
+
+}
+ 
+function guardar(){
+
+registros.push({
+
+  folio:folio.value,
+
+  tipo:tipo.value,
+
+  proyecto:numProyecto.value+' '+nomProyecto.value
+
+});
+
+consecutivo++;
+
+actualizarFolio();
+
+document.getElementById('total').innerText=registros.length;
+
+document.getElementById('tabla').innerHTML=registros.map(r=>`<tr><td>${r.folio}</td><td>${r.tipo}</td><td>${r.proyecto}</td></tr>`).join('');
+
+}
+ 
+fecha.value=new Date().toLocaleDateString();
+
+actualizarFolio();
+
+cambiarImpacto();
+ 
+new Chart(g1,{type:'bar',data:{labels:['Ene','Feb','Mar','Abr','May','Jun'],datasets:[{label:'Ahorro',data:[30,40,38,55,62,57]},{label:'Costo',data:[28,22,18,14,9,6]}]}});
+
+new Chart(g2,{type:'doughnut',data:{labels:['FA','LA','BP','RT','OB'],datasets:[{data:[12,18,25,8,5]}]}});
+
+new Chart(g3,{type:'bar',data:{labels:['Falla','Retrabajo','Buena práctica'],datasets:[{data:[12,9,17]}]},options:{indexAxis:'y'}});
+
+new Chart(g4,{type:'line',data:{labels:['Ene','Feb','Mar','Abr','May','Jun'],datasets:[{label:'Costo mensual',data:[28,22,18,14,9,6]},{label:'Tendencia',data:[28,24,20,16,12,8]}]}});
+</script>
 </body>
 </html>
  
