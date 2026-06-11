@@ -7,23 +7,25 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 
-body{background:#1f1f1f;color:#fff;font-family:Segoe UI;margin:0}
+body{background:#1f1f1f;color:white;font-family:Segoe UI;margin:0}
 
 .header{background:#173454;padding:15px 20px;font-size:24px;font-weight:bold}
 
 .container{padding:20px}
 
-.card{background:#2b2b2b;padding:15px;border-radius:10px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 
-.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.card,.panel{background:#2b2b2b;border-radius:10px;padding:15px}
+
+.value{font-size:32px;font-weight:bold}
 
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:15px}
-
-.panel{background:#2b2b2b;padding:15px;border-radius:10px;margin-top:15px}
 
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
 input,select,textarea{width:100%;padding:8px;border:none;border-radius:5px}
+
+button{background:#1976d2;color:white;border:none;padding:10px 15px;border-radius:5px;cursor:pointer}
 
 table{width:100%;border-collapse:collapse}
 
@@ -31,17 +33,20 @@ th,td{border:1px solid #444;padding:8px}
 
 th{background:#173454}
 
-button{padding:10px 15px;background:#1976d2;color:white;border:none;border-radius:5px}
+#calidad{display:none}
 </style>
 </head>
 <body>
-<div class="header">PROCORE | Lecciones Aprendidas - Impacto Kaizen</div>
+ 
+<div class="header">PROCORE | Lecciones Aprendidas</div>
+ 
 <div class="container">
+ 
 <div class="cards">
-<div class="card">Ahorros<br><h2>$284,500</h2></div>
-<div class="card">Costos de falla<br><h2>$97,200</h2></div>
-<div class="card">Registros<br><h2 id="total">0</h2></div>
-<div class="card">Impacto neto<br><h2>$187,300</h2></div>
+<div class="card">Ahorros Acumulados<div class="value">$0</div></div>
+<div class="card">Costos de Falla<div class="value">$0</div></div>
+<div class="card">Impacto Neto<div class="value">$0</div></div>
+<div class="card">Registros Totales<div class="value" id="totalRegistros">0</div></div>
 </div>
  
 <div class="grid">
@@ -52,24 +57,43 @@ button{padding:10px 15px;background:#1976d2;color:white;border:none;border-radiu
 </div>
  
 <div class="panel">
-<h2>Registro</h2>
-<div class="form-grid">
-<div><label>Folio</label><input id="folio" readonly></div>
-<div><label>Fecha Registro</label><input id="fecha" readonly></div>
+<h2>Registrar Hallazgo</h2>
  
-<div><label>Tipo Registro</label>
+<div class="form-grid">
+ 
+<div>
+<label>Folio</label>
+<input id="folio" readonly>
+</div>
+ 
+<div>
+<label>Fecha Registro</label>
+<input id="fechaRegistro" readonly>
+</div>
+ 
+<div>
+<label>Tipo de Registro</label>
 <select id="tipo" onchange="actualizarFolio()">
 <option value="FA">Falla</option>
 <option value="LA">Lección Aprendida</option>
 <option value="BP">Buena Práctica</option>
 <option value="RT">Retrabajo</option>
 <option value="OB">Observación</option>
-</select></div>
+</select>
+</div>
  
-<div><label>No. Proyecto</label><input id="numProyecto"></div>
-<div><label>Nombre Proyecto</label><input id="nomProyecto"></div>
+<div>
+<label>Número de Proyecto</label>
+<input id="numeroProyecto">
+</div>
  
-<div><label>Fase</label>
+<div>
+<label>Nombre de Proyecto</label>
+<input id="nombreProyecto">
+</div>
+ 
+<div>
+<label>Fase</label>
 <select>
 <option>Liberación de dibujo</option>
 <option>Estructural, acero o pintura</option>
@@ -80,9 +104,11 @@ button{padding:10px 15px;background:#1976d2;color:white;border:none;border-radiu
 <option>Inspecciones eléctricas</option>
 <option>Inspecciones control</option>
 <option>Otros</option>
-</select></div>
+</select>
+</div>
  
-<div><label>Departamento</label>
+<div>
+<label>Departamento</label>
 <select>
 <option>Producción</option>
 <option>Ingeniería F&P</option>
@@ -92,53 +118,104 @@ button{padding:10px 15px;background:#1976d2;color:white;border:none;border-radiu
 <option>Calidad</option>
 <option>Procesos</option>
 <option>Compras</option>
-</select></div>
+</select>
+</div>
  
-<div><label>Impacto Económico</label>
-<select id="impacto" onchange="cambiarImpacto()">
+<div>
+<label>Impacto Económico</label>
+<select id="impacto" onchange="impactoChange()">
 <option>Costo de falla</option>
 <option>Ahorro / Buena práctica</option>
 <option>Sin impacto económico</option>
-</select></div>
+</select>
+</div>
  
-<div id="bloqueMoneda">
+<div id="monedaDiv">
 <label>Moneda</label>
-<select id="moneda">
+<select>
 <option>MXN</option>
 <option>USD</option>
 </select>
 </div>
  
-<div id="bloqueMonto">
+<div id="montoDiv">
 <label>Monto</label>
-<input type="number" id="monto">
+<input type="number">
 </div>
  
-<div><label>Responsable Calidad</label><input></div>
-<div><label>Estatus</label>
-<select>
-<option>Abierto</option>
-<option>En proceso</option>
-<option>Cerrado</option>
-</select></div>
- 
-<div><label>Fecha Implementación</label><input type="date"></div>
-<div><label>Fecha Cierre</label><input type="date"></div>
-<div><label>Nombre quien cierra</label><input></div>
 </div>
  
 <br>
-<textarea placeholder="Descripción"></textarea><br><br>
-<textarea placeholder="Acción Correctiva / Preventiva"></textarea><br><br>
+ 
+<label>Descripción Hallazgo</label>
+<textarea rows="4"></textarea>
+ 
+<br><br>
+ 
+<button onclick="mostrarCalidad()">Seguimiento Calidad</button>
+ 
+<div id="calidad">
+<hr>
+<h3>Seguimiento Calidad</h3>
+ 
+<div class="form-grid">
+ 
+<div>
+<label>Responsable</label>
+<input>
+</div>
+ 
+<div>
+<label>Estatus</label>
+<select>
+<option>Abierto</option>
+<option>En Proceso</option>
+<option>Cerrado</option>
+</select>
+</div>
+ 
+<div>
+<label>Fecha Implementación</label>
+<input type="date">
+</div>
+ 
+<div>
+<label>Fecha Cierre</label>
+<input type="date">
+</div>
+ 
+<div>
+<label>Nombre quien cierra</label>
+<input>
+</div>
+ 
+</div>
+ 
+<label>Acción Correctiva</label>
+<textarea rows="3"></textarea>
+ 
+</div>
+ 
+<br><br>
+ 
 <button onclick="guardar()">Guardar Registro</button>
+ 
 </div>
  
 <div class="panel">
+<h2>Registros</h2>
 <table>
-<thead><tr><th>Folio</th><th>Tipo</th><th>Proyecto</th></tr></thead>
+<thead>
+<tr>
+<th>Folio</th>
+<th>Tipo</th>
+<th>Proyecto</th>
+</tr>
+</thead>
 <tbody id="tabla"></tbody>
 </table>
 </div>
+ 
 </div>
  
 <script>
@@ -151,19 +228,27 @@ function actualizarFolio(){
 
 let tipo=document.getElementById('tipo').value;
 
-document.getElementById('folio').value=tipo+'-'+String(consecutivo).padStart(4,'0')+'-2026';
+let year=new Date().getFullYear();
+
+document.getElementById('folio').value=year+"-"+tipo+"-"+String(consecutivo).padStart(5,'0');
 
 }
  
-function cambiarImpacto(){
+function impactoChange(){
 
-const valor=document.getElementById('impacto').value;
+let sinImpacto=document.getElementById('impacto').value==="Sin impacto económico";
 
-const ocultar=(valor==='Sin impacto económico');
+document.getElementById('monedaDiv').style.display=sinImpacto?"none":"block";
 
-document.getElementById('bloqueMoneda').style.display=ocultar?'none':'block';
+document.getElementById('montoDiv').style.display=sinImpacto?"none":"block";
 
-document.getElementById('bloqueMonto').style.display=ocultar?'none':'block';
+}
+ 
+function mostrarCalidad(){
+
+let div=document.getElementById('calidad');
+
+div.style.display=(div.style.display==="block")?"none":"block";
 
 }
  
@@ -171,38 +256,44 @@ function guardar(){
 
 registros.push({
 
-  folio:folio.value,
+  folio:document.getElementById('folio').value,
 
-  tipo:tipo.value,
+  tipo:document.getElementById('tipo').value,
 
-  proyecto:numProyecto.value+' '+nomProyecto.value
+  proyecto:document.getElementById('numeroProyecto').value+" - "+document.getElementById('nombreProyecto').value
 
 });
-
+ 
 consecutivo++;
 
 actualizarFolio();
+ 
+document.getElementById('totalRegistros').innerText=registros.length;
+ 
+document.getElementById('tabla').innerHTML=registros.map(r=>
 
-document.getElementById('total').innerText=registros.length;
+`<tr><td>${r.folio}</td><td>${r.tipo}</td><td>${r.proyecto}</td></tr>`
 
-document.getElementById('tabla').innerHTML=registros.map(r=>`<tr><td>${r.folio}</td><td>${r.tipo}</td><td>${r.proyecto}</td></tr>`).join('');
+).join('');
 
 }
  
-fecha.value=new Date().toLocaleDateString();
+document.getElementById('fechaRegistro').value=new Date().toLocaleDateString();
 
 actualizarFolio();
 
-cambiarImpacto();
+impactoChange();
  
-new Chart(g1,{type:'bar',data:{labels:['Ene','Feb','Mar','Abr','May','Jun'],datasets:[{label:'Ahorro',data:[30,40,38,55,62,57]},{label:'Costo',data:[28,22,18,14,9,6]}]}});
+new Chart(g1,{type:'bar',data:{labels:['Sin datos'],datasets:[{data:[0]}]}});
 
-new Chart(g2,{type:'doughnut',data:{labels:['FA','LA','BP','RT','OB'],datasets:[{data:[12,18,25,8,5]}]}});
+new Chart(g2,{type:'doughnut',data:{labels:['FA','LA','BP','RT','OB'],datasets:[{data:[0,0,0,0,0]}]}});
 
-new Chart(g3,{type:'bar',data:{labels:['Falla','Retrabajo','Buena práctica'],datasets:[{data:[12,9,17]}]},options:{indexAxis:'y'}});
+new Chart(g3,{type:'bar',data:{labels:['Sin datos'],datasets:[{data:[0]}]}});
 
-new Chart(g4,{type:'line',data:{labels:['Ene','Feb','Mar','Abr','May','Jun'],datasets:[{label:'Costo mensual',data:[28,22,18,14,9,6]},{label:'Tendencia',data:[28,24,20,16,12,8]}]}});
+new Chart(g4,{type:'line',data:{labels:['Sin datos'],datasets:[{data:[0]}]}});
 </script>
+ 
 </body>
 </html>
+
  
