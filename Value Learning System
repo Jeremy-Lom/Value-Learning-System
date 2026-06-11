@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Lecciones Aprendidas</title>
+</head>
+<body>
+<h1>Dashboard de Lecciones Aprendidas</h1>
+ 
+    <h2>Indicadores</h2>
+ 
+    <p>Ahorros: $284,500</p>
+<p>Costos de falla: $97,200</p>
+<p>Impacto neto: $187,300</p>
+<p>Lecciones registradas: 38</p>
+ 
+</body>
+</html>
