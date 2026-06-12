@@ -149,43 +149,6 @@ th{background:#173454}
 <div id="calidad">
 <hr>
 <h3>Seguimiento Calidad</h3>
-
-<div class="form-grid">
-
-<div>
-<label>Responsable</label>
-<input>
-</div>
-
-<div>
-<label>Estatus</label>
-<select>
-<option>Abierto</option>
-<option>En Proceso</option>
-<option>Cerrado</option>
-</select>
-</div>
-
-<div>
-<label>Fecha Implementación</label>
-<input type="date">
-</div>
-
-<div>
-<label>Fecha Cierre</label>
-<input type="date">
-</div>
-
-<div>
-<label>Nombre quien cierra</label>
-<input>
-</div>
-
-</div>
-
-<label>Acción Correctiva</label>
-<textarea rows="3"></textarea>
-
 </div>
 
 <br><br>
@@ -206,18 +169,6 @@ th{background:#173454}
 </div>
 
 <div>
-<label>Tipo</label>
-<select id="filtroTipo" onchange="filtrar()">
-<option value="">Todos</option>
-<option value="FA">Falla</option>
-<option value="LA">Lección Aprendida</option>
-<option value="BP">Buena Práctica</option>
-<option value="RT">Retrabajo</option>
-<option value="OB">Observación</option>
-</select>
-</div>
-
-<div>
 <label>Proyecto</label>
 <input id="filtroProyecto" onkeyup="filtrar()">
 </div>
@@ -227,13 +178,17 @@ th{background:#173454}
 <button onclick="limpiarFiltros()">Limpiar Filtros</button>
 </div>
 </div>
+
 <br>
+
 <table>
 <thead>
 <tr>
+<th>Fecha</th>
 <th>Folio</th>
 <th>Tipo</th>
-<th>Proyecto</th><th>Evidencias</th>
+<th>Proyecto</th>
+<th>Evidencias</th>
 </tr>
 </thead>
 <tbody id="tabla"></tbody>
@@ -243,7 +198,6 @@ th{background:#173454}
 </div>
 
 <script>
-let consecutivo=1;
 let consecutivo=1;
 let registros=[];
 
@@ -260,6 +214,12 @@ function actualizarFolio(){
  document.getElementById('folio').value=year+"-"+tipo+"-"+String(consecutivo).padStart(5,'0');
 }
 
+function actualizarFecha(){
+ let hoy=new Date();
+ let fecha=hoy.getFullYear()+"-"+String(hoy.getMonth()+1).padStart(2,'0')+"-"+String(hoy.getDate()).padStart(2,'0');
+ document.getElementById('fechaRegistro').value=fecha;
+}
+
 function impactoChange(){
  let sinImpacto=document.getElementById('impacto').value==="Sin impacto económico";
  document.getElementById('monedaDiv').style.display=sinImpacto?"none":"block";
@@ -272,10 +232,10 @@ function mostrarCalidad(){
 }
 
 function guardar(){
-
  let archivos=[...document.getElementById('evidencia').files];
 
  registros.push({
+  fecha:document.getElementById('fechaRegistro').value,
   folio:document.getElementById('folio').value,
   tipo:document.getElementById('tipo').value,
   proyecto:document.getElementById('numeroProyecto').value+" - "+document.getElementById('nombreProyecto').value,
@@ -294,19 +254,17 @@ function guardar(){
 }
 
 function filtrar(){
-
  let folio=document.getElementById('filtroFolio').value.toLowerCase();
- let tipo=document.getElementById('filtroTipo').value;
  let proyecto=document.getElementById('filtroProyecto').value.toLowerCase();
 
  let filtrados=registros.filter(r=>
  (folio==='' || r.folio.toLowerCase().includes(folio)) &&
- (tipo==='' || r.tipo===tipo) &&
  (proyecto==='' || r.proyecto.toLowerCase().includes(proyecto))
  );
 
  document.getElementById('tabla').innerHTML=filtrados.map(r=>
  `<tr>
+   <td>${r.fecha}</td>
    <td>${r.folio}</td>
    <td>${r.tipo}</td>
    <td>${r.proyecto}</td>
@@ -317,12 +275,11 @@ function filtrar(){
 
 function limpiarFiltros(){
  document.getElementById('filtroFolio').value='';
- document.getElementById('filtroTipo').value='';
  document.getElementById('filtroProyecto').value='';
  filtrar();
 }
 
-document.getElementById('fechaRegistro').value=new Date().toLocaleDateString();
+actualizarFecha();
 actualizarFolio();
 impactoChange();
 
@@ -334,4 +291,3 @@ new Chart(g4,{type:'line',data:{labels:['Sin datos'],datasets:[{data:[0]}]}});
 
 </body>
 </html>
-
