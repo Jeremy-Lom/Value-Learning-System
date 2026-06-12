@@ -1,65 +1,266 @@
 <!DOCTYPE html>
 <html lang="es">
+ 
 <head>
+ 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ 
 <title>Value Learning System</title>
+ 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+ 
 <style>
-body{background:#1f1f1f;color:white;font-family:Segoe UI;margin:0}
-.header{background:#173454;padding:15px 20px;font-size:24px;font-weight:bold}
-.container{padding:20px}
-.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.card,.panel{background:#2b2b2b;border-radius:10px;padding:15px}
-.value{font-size:32px;font-weight:bold}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:15px}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-input,select,textarea{width:100%;padding:8px;border:none;border-radius:5px}
-button{background:#1976d2;color:white;border:none;padding:10px 15px;border-radius:5px;cursor:pointer}
-table{width:100%;border-collapse:collapse}
-th,td{border:1px solid #444;padding:8px}
-th{background:#173454}
-#calidad{display:none}
+ 
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Segoe UI',sans-serif;
+}
+ 
+body{
+background:#1f1f1f;
+color:white;
+}
+ 
+.header{
+background:#173454;
+padding:15px 25px;
+font-size:28px;
+font-weight:bold;
+box-shadow:0 2px 5px rgba(0,0,0,.3);
+}
+ 
+.container{
+padding:20px;
+}
+ 
+.cards{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:15px;
+margin-bottom:20px;
+}
+ 
+.card{
+background:#2b2b2b;
+padding:20px;
+border-radius:12px;
+box-shadow:0 2px 8px rgba(0,0,0,.3);
+}
+ 
+.card-title{
+font-size:14px;
+color:#bdbdbd;
+margin-bottom:10px;
+}
+ 
+.card-value{
+font-size:32px;
+font-weight:bold;
+}
+ 
+.green{
+color:#4caf50;
+}
+ 
+.red{
+color:#e53935;
+}
+ 
+.blue{
+color:#42a5f5;
+}
+ 
+.orange{
+color:#ff9800;
+}
+ 
+.charts{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+margin-bottom:25px;
+}
+ 
+.chart-box{
+background:#2b2b2b;
+padding:20px;
+border-radius:12px;
+height:350px;
+}
+ 
+.section{
+background:#2b2b2b;
+padding:20px;
+border-radius:12px;
+margin-bottom:20px;
+}
+ 
+.section h2{
+margin-bottom:20px;
+}
+ 
+.form-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:15px;
+}
+ 
+label{
+display:block;
+margin-bottom:5px;
+font-size:14px;
+}
+ 
+input,
+select,
+textarea{
+width:100%;
+padding:10px;
+border:none;
+border-radius:6px;
+background:#3a3a3a;
+color:white;
+}
+ 
+textarea{
+resize:vertical;
+min-height:100px;
+}
+ 
+button{
+background:#1976d2;
+color:white;
+border:none;
+padding:12px 18px;
+border-radius:6px;
+cursor:pointer;
+font-weight:bold;
+}
+ 
+button:hover{
+background:#1565c0;
+}
+ 
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:15px;
+}
+ 
+table th{
+background:#173454;
+padding:10px;
+}
+ 
+table td{
+padding:10px;
+border-bottom:1px solid #444;
+}
+ 
+.filters{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:15px;
+margin-bottom:20px;
+}
+ 
+.hidden{
+display:none;
+}
+ 
 </style>
+ 
 </head>
+ 
 <body>
-
-<div class="header">PROCORE | Lecciones Aprendidas</div>
-
+ 
+<div class="header">
+PROCORE | Lecciones Aprendidas
+</div>
+ 
 <div class="container">
-
+ 
 <div class="cards">
-<div class="card">Ahorros Acumulados<div class="value">$0</div></div>
-<div class="card">Costos de Falla<div class="value">$0</div></div>
-<div class="card">Impacto Neto<div class="value">$0</div></div>
-<div class="card">Registros Totales<div class="value" id="totalRegistros">0</div></div>
+ 
+<div class="card">
+<div class="card-title">
+Ahorros Acumulados
 </div>
-
-<div class="grid">
-<div class="panel"><canvas id="g1"></canvas></div>
-<div class="panel"><canvas id="g2"></canvas></div>
-<div class="panel"><canvas id="g3"></canvas></div>
-<div class="panel"><canvas id="g4"></canvas></div>
+<div class="card-value green" id="ahorros">
+$0
 </div>
-
-<div class="panel">
-<h2>Registrar Hallazgo</h2>
-
+</div>
+ 
+<div class="card">
+<div class="card-title">
+Costos de Falla
+</div>
+<div class="card-value red" id="costos">
+$0
+</div>
+</div>
+ 
+<div class="card">
+<div class="card-title">
+Impacto Neto
+</div>
+<div class="card-value blue" id="impactoNeto">
+$0
+</div>
+</div>
+ 
+<div class="card">
+<div class="card-title">
+Registros Totales
+</div>
+<div class="card-value orange" id="totalRegistros">
+0
+</div>
+</div>
+ 
+</div>
+ 
+<div class="charts">
+ 
+<div class="chart-box">
+<canvas id="graficaTipos"></canvas>
+</div>
+ 
+<div class="chart-box">
+<canvas id="graficaImpacto"></canvas>
+</div>
+ 
+<div class="chart-box">
+<canvas id="graficaDepartamentos"></canvas>
+</div>
+ 
+<div class="chart-box">
+<canvas id="graficaMensual"></canvas>
+</div>
+ 
+</div>
+<div class="section">
+ 
+<h2>Registro de Hallazgo / Lección Aprendida</h2>
+ 
 <div class="form-grid">
-
+ 
 <div>
 <label>Folio</label>
-<input id="folio" readonly>
+<input type="text" id="folio" readonly>
 </div>
-
+ 
 <div>
-<label>Fecha Registro</label>
-<input id="fechaRegistro" readonly>
+<label>Fecha de Registro</label>
+<input type="text" id="fechaRegistro" readonly>
 </div>
-
+ 
 <div>
 <label>Tipo de Registro</label>
-<select id="tipo" onchange="actualizarFolio()">
+<select id="tipoRegistro">
 <option value="FA">Falla</option>
 <option value="LA">Lección Aprendida</option>
 <option value="BP">Buena Práctica</option>
@@ -67,20 +268,37 @@ th{background:#173454}
 <option value="OB">Observación</option>
 </select>
 </div>
-
+ 
 <div>
 <label>Número de Proyecto</label>
-<input id="numeroProyecto">
+<input type="text" id="numeroProyecto">
 </div>
-
+ 
 <div>
 <label>Nombre de Proyecto</label>
-<input id="nombreProyecto">
+<input type="text" id="nombreProyecto">
 </div>
-
+ 
 <div>
-<label>Fase</label>
-<select>
+<label>Departamento</label>
+<select id="departamento">
+ 
+<option>Producción</option>
+<option>Ingeniería F&P</option>
+<option>Ingeniería HVAC</option>
+<option>ADP</option>
+<option>Calidad</option>
+<option>Procesos</option>
+<option>Compras</option>
+<option>RH</option>
+ 
+</select>
+</div>
+ 
+<div>
+<label>Fase del Proyecto</label>
+<select id="fase">
+ 
 <option>Liberación de dibujo</option>
 <option>Estructural, acero o pintura</option>
 <option>Montaje mecánico</option>
@@ -89,205 +307,829 @@ th{background:#173454}
 <option>Inspecciones mecánicas</option>
 <option>Inspecciones eléctricas</option>
 <option>Inspecciones control</option>
+<option>Puesta en marcha</option>
 <option>Otros</option>
+ 
 </select>
 </div>
-
-<div>
-<label>Departamento</label>
-<select>
-<option>Producción</option>
-<option>Ingeniería F&P</option>
-<option>Ingeniería HVAC</option>
-<option>ADP</option>
-<option>RH</option>
-<option>Calidad</option>
-<option>Procesos</option>
-<option>Compras</option>
-</select>
-</div>
-
+ 
 <div>
 <label>Impacto Económico</label>
-<select id="impacto" onchange="impactoChange()">
-<option>Costo de falla</option>
-<option>Ahorro / Buena práctica</option>
-<option>Sin impacto económico</option>
+ 
+<select id="impactoEconomico">
+ 
+<option value="costo">
+Costo de Falla
+</option>
+ 
+<option value="ahorro">
+Ahorro / Buena Práctica
+</option>
+ 
+<option value="sinimpacto">
+Sin Impacto Económico
+</option>
+ 
 </select>
+ 
 </div>
-
-<div id="monedaDiv">
+ 
+<div id="contenedorMoneda">
+ 
 <label>Moneda</label>
-<select>
-<option>MXN</option>
-<option>USD</option>
+ 
+<select id="moneda">
+ 
+<option value="MXN">
+MXN
+</option>
+ 
+<option value="USD">
+USD
+</option>
+ 
 </select>
+ 
 </div>
-
-<div id="montoDiv">
+ 
+<div id="contenedorMonto">
+ 
 <label>Monto</label>
-<input type="number">
+ 
+<input
+type="number"
+id="monto"
+placeholder="0.00">
+ 
 </div>
-
+ 
+<div>
+<label>Clasificación</label>
+ 
+<select id="clasificacion">
+ 
+<option>Calidad</option>
+<option>Seguridad</option>
+<option>Productividad</option>
+<option>Costo</option>
+<option>Mejora Continua</option>
+ 
+</select>
+ 
 </div>
-
-<br>
-
-<label>Descripción Hallazgo</label>
-<textarea rows="4"></textarea>
-
-<br><br>
-
+ 
+<div>
 <label>Evidencia</label>
-<input type="file" id="evidencia" multiple accept=".jpg,.jpeg,.png,.pdf,.xlsx,.xls,.doc,.docx">
-<div id="listaArchivos" style="margin-top:10px"></div>
-
-<br><br>
-
-<button onclick="mostrarCalidad()">Seguimiento Calidad</button>
-
-<div id="calidad">
-<hr>
-<h3>Seguimiento Calidad</h3>
+ 
+<input
+type="file"
+id="evidencia"
+accept=".pdf,.jpg,.jpeg,.png,.xlsx,.xls,.doc,.docx">
+ 
 </div>
-
-<br><br>
-
-<button onclick="guardar()">Guardar Registro</button>
-
+ 
 </div>
-
-<div class="panel">
-<h2>Registros</h2>
-
-<h3>Filtros</h3>
-
-<div class="form-grid">
-<div>
-<label>Folio</label>
-<input id="filtroFolio" onkeyup="filtrar()">
-</div>
-
-<div>
-<label>Proyecto</label>
-<input id="filtroProyecto" onkeyup="filtrar()">
-</div>
-
-<div>
-<label>&nbsp;</label>
-<button onclick="limpiarFiltros()">Limpiar Filtros</button>
-</div>
-</div>
-
+ 
 <br>
-
-<table>
+ 
+<label>Descripción del Hallazgo</label>
+ 
+<textarea
+id="descripcion"
+placeholder="Describe el hallazgo, lección aprendida o buena práctica">
+</textarea>
+ 
+<br><br>
+ 
+<button
+type="button"
+id="btnCalidad">
+ 
+Mostrar Seguimiento de Calidad
+ 
+</button>
+ 
+<br><br>
+ 
+<div id="seccionCalidad" class="hidden">
+ 
+<hr style="margin-bottom:20px">
+ 
+<h3>Seguimiento Calidad</h3>
+ 
+<div class="form-grid">
+ 
+<div>
+ 
+<label>Responsable</label>
+ 
+<input
+type="text"
+id="responsable">
+ 
+</div>
+ 
+<div>
+ 
+<label>Estatus</label>
+ 
+<select id="estatus">
+ 
+<option>Abierto</option>
+<option>En Proceso</option>
+<option>Cerrado</option>
+ 
+</select>
+ 
+</div>
+ 
+<div>
+ 
+<label>Fecha de Implementación</label>
+ 
+<input
+type="date"
+id="fechaImplementacion">
+ 
+</div>
+ 
+<div>
+ 
+<label>Fecha de Cierre</label>
+ 
+<input
+type="date"
+id="fechaCierre">
+ 
+</div>
+ 
+<div>
+ 
+<label>Nombre de quien cierra</label>
+ 
+<input
+type="text"
+id="nombreCierre">
+ 
+</div>
+ 
+</div>
+ 
+<br>
+ 
+<label>Acción Correctiva</label>
+ 
+<textarea
+id="accionCorrectiva">
+</textarea>
+ 
+</div>
+ 
+<br>
+ 
+<button
+type="button"
+id="guardarRegistro">
+ 
+Guardar Registro
+ 
+</button>
+ 
+</div>
+ 
+<div class="section">
+ 
+<h2>Consulta de Registros</h2>
+ 
+<div class="filters">
+ 
+<div>
+ 
+<label>Buscar por Folio</label>
+ 
+<input
+type="text"
+id="filtroFolio"
+placeholder="Ejemplo: 2026-FA-00001">
+ 
+</div>
+ 
+<div>
+ 
+<label>Buscar por Número de Proyecto</label>
+ 
+<input
+type="text"
+id="filtroProyecto"
+placeholder="Ejemplo: 6117">
+ 
+</div>
+ 
+</div>
+ 
+<table id="tablaRegistros">
+ 
 <thead>
+ 
 <tr>
-<th>Fecha</th>
+ 
 <th>Folio</th>
+ 
+<th>Fecha</th>
+ 
+<th>Número Proyecto</th>
+ 
+<th>Nombre Proyecto</th>
+ 
 <th>Tipo</th>
-<th>Proyecto</th>
-<th>Evidencias</th>
+ 
+<th>Departamento</th>
+ 
+<th>Fase</th>
+ 
+<th>Estatus</th>
+ 
+<th>Impacto</th>
+ 
+<th>Monto</th>
+ 
+<th>Moneda</th>
+ 
+<th>Evidencia</th>
+ 
+<th>Acciones</th>
+ 
 </tr>
+ 
 </thead>
-<tbody id="tabla"></tbody>
+ 
+<tbody id="cuerpoTabla">
+ 
+<tr>
+ 
+<td colspan="13" style="text-align:center;padding:25px;color:#999;">
+ 
+No existen registros capturados
+ 
+</td>
+ 
+</tr>
+ 
+</tbody>
+ 
 </table>
+ 
 </div>
-
+ 
 </div>
-
+ 
+<!-- FIN DEL CONTENIDO PRINCIPAL -->
+ 
 <script>
-let consecutivo=1;
-let registros=[];
-
-document.addEventListener('change',function(e){
- if(e.target && e.target.id==='evidencia'){
-   let archivos=[...e.target.files];
-   document.getElementById('listaArchivos').innerHTML=archivos.map(a=>`<div>📎 ${a.name}</div>`).join('');
- }
-});
-
-function actualizarFolio(){
- let tipo=document.getElementById('tipo').value;
- let year=new Date().getFullYear();
- document.getElementById('folio').value=year+"-"+tipo+"-"+String(consecutivo).padStart(5,'0');
-}
-
-function actualizarFecha(){
- let hoy=new Date();
- let fecha=hoy.getFullYear()+"-"+String(hoy.getMonth()+1).padStart(2,'0')+"-"+String(hoy.getDate()).padStart(2,'0');
- document.getElementById('fechaRegistro').value=fecha;
-}
-
-function impactoChange(){
- let sinImpacto=document.getElementById('impacto').value==="Sin impacto económico";
- document.getElementById('monedaDiv').style.display=sinImpacto?"none":"block";
- document.getElementById('montoDiv').style.display=sinImpacto?"none":"block";
-}
-
-function mostrarCalidad(){
- let div=document.getElementById('calidad');
- div.style.display=(div.style.display==="block")?"none":"block";
-}
-
-function guardar(){
- let archivos=[...document.getElementById('evidencia').files];
-
- registros.push({
-  fecha:document.getElementById('fechaRegistro').value,
-  folio:document.getElementById('folio').value,
-  tipo:document.getElementById('tipo').value,
-  proyecto:document.getElementById('numeroProyecto').value+" - "+document.getElementById('nombreProyecto').value,
-  evidencia:archivos.map(a=>a.name)
- });
-
- consecutivo++;
- actualizarFolio();
-
- document.getElementById('totalRegistros').innerText=registros.length;
-
- filtrar();
-
- document.getElementById('evidencia').value='';
- document.getElementById('listaArchivos').innerHTML='';
-}
-
-function filtrar(){
- let folio=document.getElementById('filtroFolio').value.toLowerCase();
- let proyecto=document.getElementById('filtroProyecto').value.toLowerCase();
-
- let filtrados=registros.filter(r=>
- (folio==='' || r.folio.toLowerCase().includes(folio)) &&
- (proyecto==='' || r.proyecto.toLowerCase().includes(proyecto))
- );
-
- document.getElementById('tabla').innerHTML=filtrados.map(r=>
- `<tr>
-   <td>${r.fecha}</td>
-   <td>${r.folio}</td>
-   <td>${r.tipo}</td>
-   <td>${r.proyecto}</td>
-   <td>${r.evidencia ? r.evidencia.length : 0}</td>
- </tr>`
- ).join('');
-}
-
-function limpiarFiltros(){
- document.getElementById('filtroFolio').value='';
- document.getElementById('filtroProyecto').value='';
- filtrar();
-}
-
-actualizarFecha();
-actualizarFolio();
-impactoChange();
-
-new Chart(g1,{type:'bar',data:{labels:['Sin datos'],datasets:[{data:[0]}]}});
-new Chart(g2,{type:'doughnut',data:{labels:['FA','LA','BP','RT','OB'],datasets:[{data:[0,0,0,0,0]}]}});
-new Chart(g3,{type:'bar',data:{labels:['Sin datos'],datasets:[{data:[0]}]}});
-new Chart(g4,{type:'line',data:{labels:['Sin datos'],datasets:[{data:[0]}]}});
+ 
+/* ============================
+VARIABLES GLOBALES
+============================ */
+ 
+let registros = [];
+ 
+let consecutivos = {
+ 
+FA:1,
+LA:1,
+BP:1,
+RT:1,
+OB:1
+ 
+};
+ 
 </script>
+/* ============================
 
+FECHA AUTOMÁTICA
+
+============================ */
+ 
+document.getElementById("fechaRegistro").value =
+
+new Date().toLocaleDateString("es-MX");
+ 
+/* ============================
+
+FOLIO AUTOMÁTICO
+
+============================ */
+ 
+function generarFolio(){
+ 
+const tipo =
+
+document.getElementById("tipoRegistro").value;
+ 
+const year =
+
+new Date().getFullYear();
+ 
+const consecutivo =
+
+String(consecutivos[tipo]).padStart(5,"0");
+ 
+document.getElementById("folio").value =
+
+`${year}-${tipo}-${consecutivo}`;
+ 
+}
+ 
+generarFolio();
+ 
+document
+
+.getElementById("tipoRegistro")
+
+.addEventListener("change",generarFolio);
+ 
+/* ============================
+
+MOSTRAR / OCULTAR IMPACTO
+
+============================ */
+ 
+document
+
+.getElementById("impactoEconomico")
+
+.addEventListener("change",function(){
+ 
+const valor=this.value;
+ 
+if(valor==="sinimpacto"){
+ 
+document.getElementById("contenedorMoneda").style.display="none";
+
+document.getElementById("contenedorMonto").style.display="none";
+ 
+}else{
+ 
+document.getElementById("contenedorMoneda").style.display="block";
+
+document.getElementById("contenedorMonto").style.display="block";
+ 
+}
+ 
+});
+ 
+/* ============================
+
+MOSTRAR / OCULTAR CALIDAD
+
+============================ */
+ 
+document
+
+.getElementById("btnCalidad")
+
+.addEventListener("click",function(){
+ 
+const calidad =
+
+document.getElementById("seccionCalidad");
+ 
+if(calidad.classList.contains("hidden")){
+ 
+calidad.classList.remove("hidden");
+ 
+}else{
+ 
+calidad.classList.add("hidden");
+ 
+}
+ 
+});
+ 
+/* ============================
+
+GUARDAR REGISTRO
+
+============================ */
+ 
+document
+
+.getElementById("guardarRegistro")
+
+.addEventListener("click",function(){
+ 
+const tipo =
+
+document.getElementById("tipoRegistro").value;
+ 
+const registro = {
+ 
+folio:
+
+document.getElementById("folio").value,
+ 
+fecha:
+
+document.getElementById("fechaRegistro").value,
+ 
+numeroProyecto:
+
+document.getElementById("numeroProyecto").value,
+ 
+nombreProyecto:
+
+document.getElementById("nombreProyecto").value,
+ 
+tipo:
+
+tipo,
+ 
+departamento:
+
+document.getElementById("departamento").value,
+ 
+fase:
+
+document.getElementById("fase").value,
+ 
+impacto:
+
+document.getElementById("impactoEconomico").value,
+ 
+monto:
+
+document.getElementById("monto").value,
+ 
+moneda:
+
+document.getElementById("moneda").value,
+ 
+descripcion:
+
+document.getElementById("descripcion").value,
+ 
+estatus:
+
+document.getElementById("estatus") ?
+
+document.getElementById("estatus").value :
+
+"Abierto",
+ 
+evidencia:
+
+document.getElementById("evidencia").files.length > 0
+
+?
+
+document.getElementById("evidencia").files[0].name
+
+:
+
+"Sin evidencia"
+ 
+};
+ 
+registros.push(registro);
+ 
+consecutivos[tipo]++;
+ 
+generarFolio();
+ 
+actualizarTabla();
+ 
+actualizarDashboard();
+ 
+});
+ 
+/* ============================
+
+ACTUALIZAR TABLA
+
+============================ */
+ 
+function actualizarTabla(){
+ 
+const tbody =
+
+document.getElementById("cuerpoTabla");
+ 
+tbody.innerHTML="";
+ 
+if(registros.length===0){
+ 
+tbody.innerHTML=`
+<tr>
+<td colspan="13" style="text-align:center">
+
+No existen registros capturados
+</td>
+</tr>
+
+`;
+ 
+return;
+ 
+}
+ 
+registros.forEach((r,index)=>{
+ 
+tbody.innerHTML += `
+ 
+<tr>
+ 
+<td>${r.folio}</td>
+ 
+<td>${r.fecha}</td>
+ 
+<td>${r.numeroProyecto}</td>
+ 
+<td>${r.nombreProyecto}</td>
+ 
+<td>${r.tipo}</td>
+ 
+<td>${r.departamento}</td>
+ 
+<td>${r.fase}</td>
+ 
+<td>${r.estatus}</td>
+ 
+<td>${r.impacto}</td>
+ 
+<td>${r.monto}</td>
+ 
+<td>${r.moneda}</td>
+ 
+<td>${r.evidencia}</td>
+ 
+<td>
+ 
+<button onclick="verRegistro(${index})">
+
+Ver
+</button>
+ 
+</td>
+ 
+</tr>
+ 
+`;
+ 
+});
+ 
+}
+ 
+/* ============================
+
+FILTRO FOLIO
+
+============================ */
+ 
+document
+
+.getElementById("filtroFolio")
+
+.addEventListener("keyup",filtrar);
+ 
+/* ============================
+
+FILTRO PROYECTO
+
+============================ */
+ 
+document
+
+.getElementById("filtroProyecto")
+
+.addEventListener("keyup",filtrar);
+ 
+function filtrar(){
+ 
+const folio =
+
+document
+
+.getElementById("filtroFolio")
+
+.value
+
+.toLowerCase();
+ 
+const proyecto =
+
+document
+
+.getElementById("filtroProyecto")
+
+.value
+
+.toLowerCase();
+ 
+const filas =
+
+document.querySelectorAll("#cuerpoTabla tr");
+ 
+filas.forEach(fila=>{
+ 
+const texto =
+
+fila.innerText.toLowerCase();
+ 
+if(
+
+texto.includes(folio)
+&&
+
+texto.includes(proyecto)
+
+){
+ 
+fila.style.display="";
+ 
+}else{
+ 
+fila.style.display="none";
+ 
+}
+ 
+});
+ 
+}
+ 
+/* ============================
+
+VER REGISTRO
+
+============================ */
+ 
+function verRegistro(i){
+ 
+const r = registros[i];
+ 
+alert(
+ 
+"Folio: " + r.folio + "\n\n" +
+ 
+"Proyecto: " +
+
+r.numeroProyecto +
+
+" - " +
+
+r.nombreProyecto +
+ 
+"\n\nTipo: " +
+
+r.tipo +
+ 
+"\n\nDepartamento: " +
+
+r.departamento +
+ 
+"\n\nDescripción:\n" +
+
+r.descripcion
+ 
+);
+ 
+}
+ 
+/* ============================
+
+KPIs
+
+============================ */
+ 
+function actualizarDashboard(){
+ 
+document.getElementById("totalRegistros").innerText =
+
+registros.length;
+ 
+}
+ 
+/* ============================
+
+GRÁFICAS VACÍAS
+
+============================ */
+ 
+new Chart(
+
+document.getElementById("graficaTipos"),
+
+{
+
+type:"doughnut",
+
+data:{
+
+labels:[
+
+"FA",
+
+"LA",
+
+"BP",
+
+"RT",
+
+"OB"
+
+],
+
+datasets:[{
+
+data:[0,0,0,0,0]
+
+}]
+
+}
+
+}
+
+);
+ 
+new Chart(
+
+document.getElementById("graficaImpacto"),
+
+{
+
+type:"bar",
+
+data:{
+
+labels:["Sin Datos"],
+
+datasets:[{
+
+label:"Impacto",
+
+data:[0]
+
+}]
+
+}
+
+}
+
+);
+ 
+new Chart(
+
+document.getElementById("graficaDepartamentos"),
+
+{
+
+type:"bar",
+
+data:{
+
+labels:["Sin Datos"],
+
+datasets:[{
+
+label:"Departamentos",
+
+data:[0]
+
+}]
+
+}
+
+}
+
+);
+ 
+new Chart(
+
+document.getElementById("graficaMensual"),
+
+{
+
+type:"line",
+
+data:{
+
+labels:["Sin Datos"],
+
+datasets:[{
+
+label:"Mensual",
+
+data:[0]
+
+}]
+
+}
+
+}
+
+);
+ 
+</script>
+ 
 </body>
 </html>
+ 
