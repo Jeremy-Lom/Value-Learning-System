@@ -1,102 +1,65 @@
 <!DOCTYPE html>
 <html lang="es">
- 
 <head>
- 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
- 
 <title>Value Learning System</title>
- 
-<link rel="stylesheet" href="styles.css">
- 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
- 
+<style>
+
+body{background:#1f1f1f;color:white;font-family:Segoe UI;margin:0}
+
+.header{background:#173454;padding:15px 20px;font-size:24px;font-weight:bold}
+
+.container{padding:20px}
+
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+
+.card,.panel{background:#2b2b2b;border-radius:10px;padding:15px}
+
+.value{font-size:32px;font-weight:bold}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:15px}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+input,select,textarea{width:100%;padding:8px;border:none;border-radius:5px}
+
+button{background:#1976d2;color:white;border:none;padding:10px 15px;border-radius:5px;cursor:pointer}
+
+table{width:100%;border-collapse:collapse}
+
+th,td{border:1px solid #444;padding:8px}
+
+th{background:#173454}
+
+#calidad{display:none}
+</style>
 </head>
- 
 <body>
  
-<header>
+<div class="header">PROCORE | Lecciones Aprendidas</div>
  
-<h1>PROCORE | Lecciones Aprendidas</h1>
+<div class="container">
  
-</header>
- 
-<main>
- 
-<section class="kpis">
- 
-<div class="kpi">
-<h3>Ahorros Acumulados</h3>
-<h2 id="ahorros">$0</h2>
+<div class="cards">
+<div class="card">Ahorros Acumulados<div class="value">$0</div></div>
+<div class="card">Costos de Falla<div class="value">$0</div></div>
+<div class="card">Impacto Neto<div class="value">$0</div></div>
+<div class="card">Registros Totales<div class="value" id="totalRegistros">0</div></div>
 </div>
  
-<div class="kpi">
-<h3>Costos de Falla</h3>
-<h2 id="costos">$0</h2>
+<div class="grid">
+<div class="panel"><canvas id="g1"></canvas></div>
+<div class="panel"><canvas id="g2"></canvas></div>
+<div class="panel"><canvas id="g3"></canvas></div>
+<div class="panel"><canvas id="g4"></canvas></div>
 </div>
  
-<div class="kpi">
-<h3>Impacto Neto</h3>
-<h2 id="impacto">$0</h2>
-</div>
+<div class="panel">
+<h2>Registrar Hallazgo</h2>
  
-<div class="kpi">
-<h3>Registros Totales</h3>
-<h2 id="totalRegistros">0</h2>
-</div>
- 
-</section>
- 
-<section class="dashboardExtra">
- 
-<div class="infoCard">
-<h3>Lección Más Repetida</h3>
-<p id="leccionFrecuente">Sin datos</p>
-</div>
- 
-<div class="infoCard">
-<h3>Proyecto Más Impactado</h3>
-<p id="proyectoImpactado">Sin datos</p>
-</div>
- 
-<div class="infoCard">
-<h3>Tipo Más Frecuente</h3>
-<p id="tipoFrecuente">Sin datos</p>
-</div>
- 
-<div class="infoCard">
-<h3>Departamento Más Activo</h3>
-<p id="departamentoFrecuente">Sin datos</p>
-</div>
- 
-</section>
- 
-<section class="graficas">
- 
-<div class="grafica">
-<canvas id="graficaTipos"></canvas>
-</div>
- 
-<div class="grafica">
-<canvas id="graficaProyectos"></canvas>
-</div>
- 
-<div class="grafica">
-<canvas id="graficaDepartamentos"></canvas>
-</div>
- 
-<div class="grafica">
-<canvas id="graficaImpacto"></canvas>
-</div>
- 
-</section>
- 
-<section class="registro">
- 
-<h2>Registro de Hallazgo</h2>
- 
-<div class="formGrid">
+<div class="form-grid">
  
 <div>
 <label>Folio</label>
@@ -109,55 +72,29 @@
 </div>
  
 <div>
-<label>Tipo Registro</label>
- 
-<select id="tipoRegistro">
- 
+<label>Tipo de Registro</label>
+<select id="tipo" onchange="actualizarFolio()">
 <option value="FA">Falla</option>
 <option value="LA">Lección Aprendida</option>
 <option value="BP">Buena Práctica</option>
 <option value="RT">Retrabajo</option>
 <option value="OB">Observación</option>
- 
 </select>
- 
 </div>
  
 <div>
-<label>Número Proyecto</label>
+<label>Número de Proyecto</label>
 <input id="numeroProyecto">
 </div>
  
 <div>
-<label>Nombre Proyecto</label>
+<label>Nombre de Proyecto</label>
 <input id="nombreProyecto">
 </div>
  
 <div>
- 
-<label>Departamento</label>
- 
-<select id="departamento">
- 
-<option>Producción</option>
-<option>Ingeniería HVAC</option>
-<option>Ingeniería F&P</option>
-<option>ADP</option>
-<option>Calidad</option>
-<option>Compras</option>
-<option>Procesos</option>
-<option>RH</option>
- 
-</select>
- 
-</div>
- 
-<div>
- 
 <label>Fase</label>
- 
-<select id="fase">
- 
+<select>
 <option>Liberación de dibujo</option>
 <option>Estructural, acero o pintura</option>
 <option>Montaje mecánico</option>
@@ -166,222 +103,197 @@
 <option>Inspecciones mecánicas</option>
 <option>Inspecciones eléctricas</option>
 <option>Inspecciones control</option>
-<option>Puesta en marcha</option>
 <option>Otros</option>
- 
 </select>
- 
-</div>
- 
-<div id="faseOtroContainer">
- 
-<label>Especificar Fase</label>
- 
-<input id="faseOtro">
- 
 </div>
  
 <div>
- 
-<label>Impacto Económico</label>
- 
-<select id="impactoEconomico">
- 
-<option value="costo">Costo de Falla</option>
-<option value="ahorro">Ahorro</option>
-<option value="sinimpacto">Sin Impacto Económico</option>
- 
+<label>Departamento</label>
+<select>
+<option>Producción</option>
+<option>Ingeniería F&P</option>
+<option>Ingeniería HVAC</option>
+<option>ADP</option>
+<option>RH</option>
+<option>Calidad</option>
+<option>Procesos</option>
+<option>Compras</option>
 </select>
- 
 </div>
  
-<div id="contenedorMoneda">
+<div>
+<label>Impacto Económico</label>
+<select id="impacto" onchange="impactoChange()">
+<option>Costo de falla</option>
+<option>Ahorro / Buena práctica</option>
+<option>Sin impacto económico</option>
+</select>
+</div>
  
+<div id="monedaDiv">
 <label>Moneda</label>
- 
-<select id="moneda">
- 
+<select>
 <option>MXN</option>
 <option>USD</option>
- 
 </select>
- 
 </div>
  
-<div id="contenedorMonto">
- 
+<div id="montoDiv">
 <label>Monto</label>
+<input type="number">
+</div>
  
-<input
-type="number"
-id="monto">
+</div>
  
+<br>
+ 
+<label>Descripción Hallazgo</label>
+<textarea rows="4"></textarea>
+ 
+<br><br>
+ 
+<button onclick="mostrarCalidad()">Seguimiento Calidad</button>
+ 
+<div id="calidad">
+<hr>
+<h3>Seguimiento Calidad</h3>
+ 
+<div class="form-grid">
+ 
+<div>
+<label>Responsable</label>
+<input>
 </div>
  
 <div>
- 
-<label>Evidencias</label>
- 
-<input
-type="file"
-id="evidencias"
-multiple>
- 
-</div>
- 
-</div>
- 
-<label>Descripción</label>
- 
-<textarea id="descripcion"></textarea>
- 
-<h3>Seguimiento</h3>
- 
-<div id="responsablesContainer">
- 
-<div class="responsableRow">
- 
-<select class="responsableDepartamento">
- 
-<option>Producción</option>
-<option>Ingeniería HVAC</option>
-<option>Ingeniería F&P</option>
-<option>ADP</option>
-<option>Calidad</option>
- 
-</select>
- 
-<input
-type="text"
-class="responsableNombre"
-placeholder="Nombre Responsable">
- 
-</div>
- 
-</div>
- 
-<button id="agregarResponsable">
- 
-Agregar Responsable
- 
-</button>
- 
-<div class="formGrid">
- 
-<div>
- 
 <label>Estatus</label>
- 
-<select id="estatus">
- 
+<select>
 <option>Abierto</option>
 <option>En Proceso</option>
 <option>Cerrado</option>
- 
 </select>
- 
 </div>
  
 <div>
- 
 <label>Fecha Implementación</label>
- 
-<input
-type="date"
-id="fechaImplementacion">
- 
+<input type="date">
 </div>
  
 <div>
- 
 <label>Fecha Cierre</label>
- 
-<input
-type="date"
-id="fechaCierre">
- 
+<input type="date">
 </div>
  
 <div>
- 
 <label>Nombre quien cierra</label>
- 
-<input
-type="text"
-id="nombreCierre">
- 
+<input>
 </div>
  
 </div>
  
 <label>Acción Correctiva</label>
- 
-<textarea id="accionCorrectiva"></textarea>
- 
-<button id="guardarRegistro">
- 
-Guardar Registro
- 
-</button>
- 
-</section>
- 
-<section>
- 
-<h2>Consulta de Registros</h2>
- 
-<div class="filtros">
- 
-<input
-id="filtroFolio"
-placeholder="Buscar Folio">
- 
-<input
-id="filtroProyecto"
-placeholder="Buscar Número Proyecto">
+<textarea rows="3"></textarea>
  
 </div>
  
+<br><br>
+ 
+<button onclick="guardar()">Guardar Registro</button>
+ 
+</div>
+ 
+<div class="panel">
+<h2>Registros</h2>
 <table>
- 
 <thead>
- 
 <tr>
- 
 <th>Folio</th>
-<th>Fecha</th>
-<th>Proyecto</th>
 <th>Tipo</th>
-<th>Estatus</th>
-<th>Impacto</th>
-<th>Evidencias</th>
-<th>Acciones</th>
- 
+<th>Proyecto</th>
 </tr>
- 
 </thead>
- 
-<tbody id="tablaRegistros">
- 
-<tr>
- 
-<td colspan="8">
- 
-No existen registros capturados
- 
-</td>
- 
-</tr>
- 
-</tbody>
- 
+<tbody id="tabla"></tbody>
 </table>
+</div>
  
-</section>
+</div>
  
-</main>
+<script>
+
+let consecutivo=1;
+
+let registros=[];
  
-<script src="app.js"></script>
+function actualizarFolio(){
+
+let tipo=document.getElementById('tipo').value;
+
+let year=new Date().getFullYear();
+
+document.getElementById('folio').value=year+"-"+tipo+"-"+String(consecutivo).padStart(5,'0');
+
+}
+ 
+function impactoChange(){
+
+let sinImpacto=document.getElementById('impacto').value==="Sin impacto económico";
+
+document.getElementById('monedaDiv').style.display=sinImpacto?"none":"block";
+
+document.getElementById('montoDiv').style.display=sinImpacto?"none":"block";
+
+}
+ 
+function mostrarCalidad(){
+
+let div=document.getElementById('calidad');
+
+div.style.display=(div.style.display==="block")?"none":"block";
+
+}
+ 
+function guardar(){
+
+registros.push({
+
+  folio:document.getElementById('folio').value,
+
+  tipo:document.getElementById('tipo').value,
+
+  proyecto:document.getElementById('numeroProyecto').value+" - "+document.getElementById('nombreProyecto').value
+
+});
+ 
+consecutivo++;
+
+actualizarFolio();
+ 
+document.getElementById('totalRegistros').innerText=registros.length;
+ 
+document.getElementById('tabla').innerHTML=registros.map(r=>
+
+`<tr><td>${r.folio}</td><td>${r.tipo}</td><td>${r.proyecto}</td></tr>`
+
+).join('');
+
+}
+ 
+document.getElementById('fechaRegistro').value=new Date().toLocaleDateString();
+
+actualizarFolio();
+
+impactoChange();
+ 
+new Chart(g1,{type:'bar',data:{labels:['Sin datos'],datasets:[{data:[0]}]}});
+
+new Chart(g2,{type:'doughnut',data:{labels:['FA','LA','BP','RT','OB'],datasets:[{data:[0,0,0,0,0]}]}});
+
+new Chart(g3,{type:'bar',data:{labels:['Sin datos'],datasets:[{data:[0]}]}});
+
+new Chart(g4,{type:'line',data:{labels:['Sin datos'],datasets:[{data:[0]}]}});
+</script>
  
 </body>
 </html>
+
+ 
