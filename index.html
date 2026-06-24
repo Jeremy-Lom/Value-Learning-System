@@ -3,76 +3,113 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Value Learning System</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<title>PROCORE | Lecciones Aprendidas</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
-
-body{background:#1f1f1f;color:white;font-family:Segoe UI;margin:0}
-
-.header{background:#173454;padding:15px 20px;font-size:24px;font-weight:bold}
-
-.container{padding:20px}
-
-.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-
-.card,.panel{background:#2b2b2b;border-radius:10px;padding:15px}
-
-.value{font-size:32px;font-weight:bold}
-
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:15px}
-
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#1a1a2e;color:#e0e0e0;font-family:Segoe UI,sans-serif;min-height:100vh}
+.header{background:#173454;padding:14px 24px;font-size:20px;font-weight:600;display:flex;align-items:center;gap:10px;border-bottom:1px solid #0f2544}
+.container{padding:20px;display:flex;flex-direction:column;gap:16px}
+/* KPIs */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.kpi{background:#1e2a3a;border:1px solid #2a3f5a;border-radius:10px;padding:14px 16px}
+.kpi-label{font-size:11px;color:#8aa0b8;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
+.kpi-value{font-size:26px;font-weight:700;color:#e8f0ff}
+.kpi-sub{font-size:11px;color:#5a7a9a;margin-top:3px}
+/* Charts */
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.chart-card{background:#1e2a3a;border:1px solid #2a3f5a;border-radius:10px;padding:14px}
+.chart-title{font-size:12px;color:#8aa0b8;margin-bottom:10px;font-weight:600}
+.canvas-wrap{position:relative;width:100%;height:170px}
+/* Panel */
+.panel{background:#1e2a3a;border:1px solid #2a3f5a;border-radius:10px;padding:18px}
+/* Tabs */
+.tabs{display:flex;gap:4px;border-bottom:1px solid #2a3f5a;margin-bottom:16px}
+.tab{padding:8px 16px;font-size:13px;cursor:pointer;border-radius:8px 8px 0 0;color:#8aa0b8;border:none;background:none;font-family:Segoe UI,sans-serif}
+.tab.active{background:#243347;color:#e0eaff;font-weight:600}
+/* User bar */
+.user-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#162130;border-radius:8px;margin-bottom:14px;font-size:12px;color:#8aa0b8;border:1px solid #2a3f5a}
+.user-bar input{flex:1;border:1px solid #3a5070;border-radius:6px;padding:5px 10px;font-size:12px;background:#1a2d42;color:#e0e0e0;font-family:Segoe UI,sans-serif}
+.user-btn{padding:5px 14px;font-size:12px;background:#1976d2;color:#fff;border:none;border-radius:6px;cursor:pointer}
+/* Section label */
+.sec-label{font-size:11px;font-weight:700;color:#5a8ab8;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #243347}
+/* Form */
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-
-input,select,textarea{width:100%;padding:8px;border:none;border-radius:5px}
-
-button{background:#1976d2;color:white;border:none;padding:10px 15px;border-radius:5px;cursor:pointer}
-
-table{width:100%;border-collapse:collapse}
-
-th,td{border:1px solid #444;padding:8px}
-
-th{background:#173454}
-
-#calidad{display:none}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg label{font-size:12px;color:#8aa0b8}
+.fg input,.fg select,.fg textarea{padding:7px 10px;border:1px solid #3a5070;border-radius:6px;background:#162130;color:#e0e0e0;font-size:13px;font-family:Segoe UI,sans-serif;width:100%}
+.fg textarea{resize:vertical}
+.fg input[readonly]{opacity:.55;cursor:default}
+hr.div{border:none;border-top:1px solid #243347;margin:14px 0}
+/* Badges */
+.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600}
+.badge-FA{background:#3d1a1a;color:#f09595}
+.badge-LA{background:#1a2d3d;color:#85b7eb}
+.badge-BP{background:#1a2d1a;color:#97c459}
+.badge-RT{background:#3d2e0a;color:#ef9f27}
+.badge-OB{background:#2a1f3d;color:#afa9ec}
+.st-abierto{background:#3d2e0a;color:#ef9f27}
+.st-proceso{background:#1a2d3d;color:#85b7eb}
+.st-cerrado{background:#1a2d1a;color:#97c459}
+/* Table */
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:8px 10px;background:#162130;color:#8aa0b8;font-weight:600;border-bottom:1px solid #2a3f5a}
+td{padding:8px 10px;border-bottom:1px solid #1e2d3d;color:#c8d8e8}
+tr:last-child td{border-bottom:none}
+/* Buttons */
+.btn-save{background:#1976d2;color:#fff;border:none;padding:9px 22px;border-radius:7px;cursor:pointer;font-size:13px;font-weight:600;font-family:Segoe UI,sans-serif}
+.btn-save:hover{background:#1565c0}
+/* Filters */
+.filter-row{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+.filter-row select{padding:5px 8px;font-size:12px;border:1px solid #3a5070;border-radius:6px;background:#162130;color:#e0e0e0;font-family:Segoe UI,sans-serif}
+.empty{text-align:center;padding:30px;color:#4a6a8a;font-size:13px}
+.lock-notice{font-size:11px;color:#5a7a9a;display:flex;align-items:center;gap:5px}
 </style>
 </head>
 <body>
  
-<div class="header">PROCORE | Lecciones Aprendidas</div>
+<div class="header">&#9783; PROCORE &nbsp;|&nbsp; Lecciones Aprendidas</div>
  
 <div class="container">
  
-<div class="cards">
-<div class="card">Ahorros Acumulados<div class="value">$0</div></div>
-<div class="card">Costos de Falla<div class="value">$0</div></div>
-<div class="card">Impacto Neto<div class="value">$0</div></div>
-<div class="card">Registros Totales<div class="value" id="totalRegistros">0</div></div>
+<!-- KPIs -->
+<div class="kpi-grid">
+<div class="kpi"><div class="kpi-label">Horas tiempo muerto total</div><div class="kpi-value" id="kpi-horas">0 h</div><div class="kpi-sub">acumulado</div></div>
+<div class="kpi"><div class="kpi-label">Días perdidos por fallas</div><div class="kpi-value" id="kpi-dias">0.0 d</div><div class="kpi-sub">tipo FA / RT</div></div>
+<div class="kpi"><div class="kpi-label">Tiempo prom. resolución</div><div class="kpi-value" id="kpi-prom">— d</div><div class="kpi-sub">apertura → cierre</div></div>
+<div class="kpi"><div class="kpi-label">Registros totales</div><div class="kpi-value" id="kpi-total">0</div><div class="kpi-sub" id="kpi-abiertos">0 abiertos</div></div>
 </div>
  
-<div class="grid">
-<div class="panel"><canvas id="g1"></canvas></div>
-<div class="panel"><canvas id="g2"></canvas></div>
-<div class="panel"><canvas id="g3"></canvas></div>
-<div class="panel"><canvas id="g4"></canvas></div>
+<!-- Gráficas -->
+<div class="charts-grid">
+<div class="chart-card"><div class="chart-title">Tiempo muerto por proyecto (h)</div><div class="canvas-wrap"><canvas id="g1"></canvas></div></div>
+<div class="chart-card"><div class="chart-title">Registros por tipo</div><div class="canvas-wrap"><canvas id="g2"></canvas></div></div>
+<div class="chart-card"><div class="chart-title">Días perdidos por tipo de falla</div><div class="canvas-wrap"><canvas id="g3"></canvas></div></div>
+<div class="chart-card"><div class="chart-title">Tiempo promedio resolución por mes (días)</div><div class="canvas-wrap"><canvas id="g4"></canvas></div></div>
 </div>
  
+<!-- Panel principal -->
 <div class="panel">
-<h2>Registrar Hallazgo</h2>
+<div class="tabs">
+<button class="tab active" onclick="showTab('registro')">Registrar hallazgo</button>
+<button class="tab" onclick="showTab('tabla')">Registros guardados</button>
+</div>
  
+  <!-- TAB REGISTRO -->
+<div id="tab-registro">
+<div class="user-bar">
+&#128100;
+<span>Registrador:</span>
+<input type="text" id="usuarioActual" placeholder="Tu nombre completo">
+<button class="user-btn" onclick="setUsuario()">Confirmar</button>
+<span id="usuarioConfirmado" style="color:#97c459;font-weight:600"></span>
+</div>
+ 
+    <div class="sec-label">Información general</div>
 <div class="form-grid">
- 
-<div>
-<label>Folio</label>
-<input id="folio" readonly>
-</div>
- 
-<div>
-<label>Fecha Registro</label>
-<input id="fechaRegistro" readonly>
-</div>
- 
-<div>
-<label>Tipo de Registro</label>
+<div class="fg"><label>Folio</label><input id="folio" readonly></div>
+<div class="fg"><label>Fecha registro</label><input id="fechaRegistro" readonly></div>
+<div class="fg"><label>Tipo de registro</label>
 <select id="tipo" onchange="actualizarFolio()">
 <option value="FA">Falla</option>
 <option value="LA">Lección Aprendida</option>
@@ -81,20 +118,10 @@ th{background:#173454}
 <option value="OB">Observación</option>
 </select>
 </div>
- 
-<div>
-<label>Número de Proyecto</label>
-<input id="numeroProyecto">
-</div>
- 
-<div>
-<label>Nombre de Proyecto</label>
-<input id="nombreProyecto">
-</div>
- 
-<div>
-<label>Fase</label>
-<select>
+<div class="fg"><label>Número de proyecto</label><input id="numeroProyecto" placeholder="Ej. PRY-2024-001"></div>
+<div class="fg"><label>Nombre de proyecto</label><input id="nombreProyecto" placeholder="Nombre del proyecto"></div>
+<div class="fg"><label>Fase</label>
+<select id="fase">
 <option>Liberación de dibujo</option>
 <option>Estructural, acero o pintura</option>
 <option>Montaje mecánico</option>
@@ -106,12 +133,10 @@ th{background:#173454}
 <option>Otros</option>
 </select>
 </div>
- 
-<div>
-<label>Departamento</label>
-<select>
+<div class="fg"><label>Departamento</label>
+<select id="depto">
 <option>Producción</option>
-<option>Ingeniería F&P</option>
+<option>Ingeniería F&amp;P</option>
 <option>Ingeniería HVAC</option>
 <option>ADP</option>
 <option>RH</option>
@@ -120,180 +145,252 @@ th{background:#173454}
 <option>Compras</option>
 </select>
 </div>
- 
-<div>
-<label>Impacto Económico</label>
-<select id="impacto" onchange="impactoChange()">
+<div class="fg"><label>Impacto económico</label>
+<select id="impacto">
 <option>Costo de falla</option>
 <option>Ahorro / Buena práctica</option>
 <option>Sin impacto económico</option>
 </select>
 </div>
+<div class="fg"><label>Horas tiempo muerto</label><input type="number" id="horasTM" min="0" placeholder="0" value="0"></div>
+</div>
+<div class="fg" style="margin-top:10px"><label>Descripción del hallazgo</label><textarea id="descripcion" rows="3" placeholder="Describe el hallazgo..."></textarea></div>
  
-<div id="monedaDiv">
-<label>Moneda</label>
-<select>
-<option>MXN</option>
-<option>USD</option>
+    <hr class="div">
+ 
+    <div class="form-grid">
+<div class="fg"><label>Responsable</label><input id="responsable" placeholder="Nombre del responsable"></div>
+<div class="fg"><label>Estatus</label>
+<select id="estatus">
+<option value="Abierto">Abierto</option>
+<option value="En Proceso">En Proceso</option>
+<option value="Cerrado">Cerrado</option>
 </select>
 </div>
+<div class="fg"><label>Fecha implementación</label><input type="date" id="fechaImpl"></div>
+<div class="fg"><label>Fecha cierre</label><input type="date" id="fechaCierre"></div>
+<div class="fg"><label>Nombre quien cierra</label><input id="quienCierra" placeholder="Quien cierra el hallazgo"></div>
+</div>
+<div class="fg" style="margin-top:10px"><label>Acción correctiva</label><textarea id="accionCorrectiva" rows="3" placeholder="Describe la acción correctiva..."></textarea></div>
  
-<div id="montoDiv">
-<label>Monto</label>
-<input type="number">
+    <div style="margin-top:14px;display:flex;align-items:center;gap:14px">
+<button class="btn-save" onclick="guardar()">Guardar registro</button>
+<div class="lock-notice" id="lockNotice" style="display:none">&#128274; Solo el registrador puede editar este folio</div>
+</div>
 </div>
  
-</div>
- 
-<br>
- 
-<label>Descripción Hallazgo</label>
-<textarea rows="4"></textarea>
- 
-<br><br>
- 
-<button onclick="mostrarCalidad()">Seguimiento Calidad</button>
- 
-<div id="calidad">
-<hr>
-<h3>Seguimiento Calidad</h3>
- 
-<div class="form-grid">
- 
-<div>
-<label>Responsable</label>
-<input>
-</div>
- 
-<div>
-<label>Estatus</label>
-<select>
-<option>Abierto</option>
-<option>En Proceso</option>
-<option>Cerrado</option>
+  <!-- TAB TABLA -->
+<div id="tab-tabla" style="display:none">
+<div class="filter-row">
+<span style="font-size:12px;color:#8aa0b8">Filtrar:</span>
+<select id="filtroTipo" onchange="renderTabla()">
+<option value="">Todos los tipos</option>
+<option value="FA">Falla</option>
+<option value="LA">Lección Aprendida</option>
+<option value="BP">Buena Práctica</option>
+<option value="RT">Retrabajo</option>
+<option value="OB">Observación</option>
+</select>
+<select id="filtroEstatus" onchange="renderTabla()">
+<option value="">Todos los estatus</option>
+<option value="Abierto">Abierto</option>
+<option value="En Proceso">En Proceso</option>
+<option value="Cerrado">Cerrado</option>
 </select>
 </div>
- 
-<div>
-<label>Fecha Implementación</label>
-<input type="date">
-</div>
- 
-<div>
-<label>Fecha Cierre</label>
-<input type="date">
-</div>
- 
-<div>
-<label>Nombre quien cierra</label>
-<input>
-</div>
- 
-</div>
- 
-<label>Acción Correctiva</label>
-<textarea rows="3"></textarea>
- 
-</div>
- 
-<br><br>
- 
-<button onclick="guardar()">Guardar Registro</button>
- 
-</div>
- 
-<div class="panel">
-<h2>Registros</h2>
+<div style="overflow-x:auto">
 <table>
 <thead>
 <tr>
-<th>Folio</th>
-<th>Tipo</th>
-<th>Proyecto</th>
+<th>Folio</th><th>Tipo</th><th>Proyecto</th><th>Departamento</th>
+<th>Tiempo muerto</th><th>Estatus</th><th>Días resolución</th><th>Registrador</th>
 </tr>
 </thead>
-<tbody id="tabla"></tbody>
+<tbody id="tablaBody"></tbody>
 </table>
+<div id="emptyState" class="empty" style="display:none">Sin registros aún</div>
+</div>
+</div>
 </div>
  
-</div>
+</div><!-- /container -->
  
 <script>
-
-let consecutivo=1;
-
-let registros=[];
+let consecutivo = 1;
+let registros = [];
+let usuarioActivo = '';
+let charts = {};
+ 
+function setUsuario(){
+  const v = document.getElementById('usuarioActual').value.trim();
+  if(!v){ alert('Escribe tu nombre antes de confirmar.'); return; }
+  usuarioActivo = v;
+  document.getElementById('usuarioConfirmado').textContent = '✓ ' + v;
+  document.getElementById('lockNotice').style.display = 'flex';
+}
  
 function actualizarFolio(){
-
-let tipo=document.getElementById('tipo').value;
-
-let year=new Date().getFullYear();
-
-document.getElementById('folio').value=year+"-"+tipo+"-"+String(consecutivo).padStart(5,'0');
-
+  const tipo = document.getElementById('tipo').value;
+  const year = new Date().getFullYear();
+  document.getElementById('folio').value = year + '-' + tipo + '-' + String(consecutivo).padStart(5,'0');
 }
  
-function impactoChange(){
-
-let sinImpacto=document.getElementById('impacto').value==="Sin impacto económico";
-
-document.getElementById('monedaDiv').style.display=sinImpacto?"none":"block";
-
-document.getElementById('montoDiv').style.display=sinImpacto?"none":"block";
-
+function showTab(t){
+  document.getElementById('tab-registro').style.display = t==='registro' ? 'block' : 'none';
+  document.getElementById('tab-tabla').style.display = t==='tabla' ? 'block' : 'none';
+  document.querySelectorAll('.tab').forEach((el,i)=>{
+    el.classList.toggle('active', (i===0&&t==='registro')||(i===1&&t==='tabla'));
+  });
+  if(t==='tabla') renderTabla();
 }
  
-function mostrarCalidad(){
-
-let div=document.getElementById('calidad');
-
-div.style.display=(div.style.display==="block")?"none":"block";
-
+function diasEntre(d1, d2){
+  if(!d1||!d2) return null;
+  const a = new Date(d1), b = new Date(d2);
+  return Math.max(0, Math.round((b-a)/(1000*60*60*24)));
 }
  
 function guardar(){
-
-registros.push({
-
-  folio:document.getElementById('folio').value,
-
-  tipo:document.getElementById('tipo').value,
-
-  proyecto:document.getElementById('numeroProyecto').value+" - "+document.getElementById('nombreProyecto').value
-
-});
+  if(!usuarioActivo){ alert('Confirma tu nombre antes de guardar.'); return; }
+  const fechaCierre = document.getElementById('fechaCierre').value;
+  const fechaHoy = new Date().toISOString().split('T')[0];
+  const horas = parseFloat(document.getElementById('horasTM').value)||0;
+  const dias = diasEntre(fechaHoy, fechaCierre);
  
-consecutivo++;
-
-actualizarFolio();
+  registros.push({
+    folio: document.getElementById('folio').value,
+    tipo: document.getElementById('tipo').value,
+    numero: document.getElementById('numeroProyecto').value.trim(),
+    proyecto: (document.getElementById('numeroProyecto').value.trim()||'') +
+              (document.getElementById('nombreProyecto').value.trim() ? ' - '+document.getElementById('nombreProyecto').value.trim() : ''),
+    depto: document.getElementById('depto').value,
+    fase: document.getElementById('fase').value,
+    impacto: document.getElementById('impacto').value,
+    horasTM: horas,
+    descripcion: document.getElementById('descripcion').value,
+    responsable: document.getElementById('responsable').value,
+    estatus: document.getElementById('estatus').value,
+    fechaImpl: document.getElementById('fechaImpl').value,
+    fechaCierre: fechaCierre,
+    quienCierra: document.getElementById('quienCierra').value,
+    accionCorrectiva: document.getElementById('accionCorrectiva').value,
+    registrador: usuarioActivo,
+    fechaRegistro: fechaHoy,
+    diasResolucion: dias
+  });
  
-document.getElementById('totalRegistros').innerText=registros.length;
+  consecutivo++;
+  actualizarFolio();
  
-document.getElementById('tabla').innerHTML=registros.map(r=>
-
-`<tr><td>${r.folio}</td><td>${r.tipo}</td><td>${r.proyecto}</td></tr>`
-
-).join('');
-
+  ['numeroProyecto','nombreProyecto','descripcion','responsable','quienCierra','accionCorrectiva'].forEach(id=>{
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('horasTM').value = '0';
+  document.getElementById('estatus').value = 'Abierto';
+  document.getElementById('fechaImpl').value = '';
+  document.getElementById('fechaCierre').value = '';
+ 
+  actualizarKPIs();
+  actualizarCharts();
 }
  
-document.getElementById('fechaRegistro').value=new Date().toLocaleDateString();
-
+function actualizarKPIs(){
+  const total = registros.length;
+  const totalHoras = registros.reduce((s,r)=>s+r.horasTM, 0);
+  const diasFallas = registros.filter(r=>r.tipo==='FA'||r.tipo==='RT').reduce((s,r)=>s+(r.horasTM/8), 0);
+  const cerrados = registros.filter(r=>r.estatus==='Cerrado'&&r.diasResolucion!==null);
+  const promDias = cerrados.length ? Math.round(cerrados.reduce((s,r)=>s+r.diasResolucion,0)/cerrados.length) : null;
+  const abiertos = registros.filter(r=>r.estatus==='Abierto').length;
+ 
+  document.getElementById('kpi-horas').textContent = Math.round(totalHoras) + ' h';
+  document.getElementById('kpi-dias').textContent = diasFallas.toFixed(1) + ' d';
+  document.getElementById('kpi-prom').textContent = promDias!==null ? promDias+' d' : '— d';
+  document.getElementById('kpi-total').textContent = total;
+  document.getElementById('kpi-abiertos').textContent = abiertos + ' abiertos';
+}
+ 
+function renderTabla(){
+  const filtroT = document.getElementById('filtroTipo').value;
+  const filtroE = document.getElementById('filtroEstatus').value;
+  const filtrados = registros.filter(r=>(!filtroT||r.tipo===filtroT)&&(!filtroE||r.estatus===filtroE));
+  document.getElementById('emptyState').style.display = filtrados.length ? 'none' : 'block';
+  document.getElementById('tablaBody').innerHTML = filtrados.map(r=>{
+    const stCls = r.estatus==='Abierto'?'st-abierto':r.estatus==='En Proceso'?'st-proceso':'st-cerrado';
+    return `<tr>
+<td style="font-family:monospace;font-size:11px">${r.folio}</td>
+<td><span class="badge badge-${r.tipo}">${r.tipo}</span></td>
+<td>${r.proyecto||'—'}</td>
+<td>${r.depto}</td>
+<td>${r.horasTM} h</td>
+<td><span class="badge ${stCls}">${r.estatus}</span></td>
+<td>${r.diasResolucion!==null ? r.diasResolucion+' d' : '—'}</td>
+<td style="font-size:11px;color:#8aa0b8">${r.registrador}</td>
+</tr>`;
+  }).join('');
+}
+ 
+function actualizarCharts(){
+  const tickOpts = { color:'#8aa0b8', font:{size:10} };
+  const gridColor = '#243347';
+ 
+  // G1 Horas TM por proyecto
+  const proyMap = {};
+  registros.forEach(r=>{
+    const k = r.numero||'Sin proyecto';
+    proyMap[k] = (proyMap[k]||0) + r.horasTM;
+  });
+  const g1L = Object.keys(proyMap), g1D = Object.values(proyMap);
+  if(charts.g1) charts.g1.destroy();
+  charts.g1 = new Chart(document.getElementById('g1'),{
+    type:'bar',
+    data:{labels:g1L.length?g1L:['Sin datos'],datasets:[{data:g1L.length?g1D:[0],backgroundColor:'#1976d299',borderColor:'#1976d2',borderWidth:1}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:tickOpts,grid:{color:gridColor}},y:{beginAtZero:true,ticks:tickOpts,grid:{color:gridColor}}}}
+  });
+ 
+  // G2 Por tipo
+  const tipos=['FA','LA','BP','RT','OB'];
+  const conteos = tipos.map(t=>registros.filter(r=>r.tipo===t).length);
+  if(charts.g2) charts.g2.destroy();
+  charts.g2 = new Chart(document.getElementById('g2'),{
+    type:'doughnut',
+    data:{labels:tipos,datasets:[{data:conteos,backgroundColor:['#E24B4A','#378ADD','#639922','#EF9F27','#7F77DD'],borderWidth:1,borderColor:'#1e2a3a'}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'right',labels:{color:'#8aa0b8',font:{size:10},boxWidth:10}}}}
+  });
+ 
+  // G3 Días perdidos FA / RT
+  const diasPorTipo = ['FA','RT'].map(t=>registros.filter(r=>r.tipo===t).reduce((s,r)=>s+(r.horasTM/8),0));
+  if(charts.g3) charts.g3.destroy();
+  charts.g3 = new Chart(document.getElementById('g3'),{
+    type:'bar',
+    data:{labels:['Falla (FA)','Retrabajo (RT)'],datasets:[{data:diasPorTipo,backgroundColor:['#E24B4A99','#EF9F2799'],borderColor:['#E24B4A','#EF9F27'],borderWidth:1}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:tickOpts,grid:{color:gridColor}},y:{beginAtZero:true,ticks:tickOpts,grid:{color:gridColor}}}}
+  });
+ 
+  // G4 Prom resolución por mes
+  const mesMap = {};
+  registros.filter(r=>r.diasResolucion!==null&&r.fechaCierre).forEach(r=>{
+    const mes = r.fechaCierre.substring(0,7);
+    if(!mesMap[mes]) mesMap[mes]={sum:0,cnt:0};
+    mesMap[mes].sum += r.diasResolucion; mesMap[mes].cnt++;
+  });
+  const g4L = Object.keys(mesMap).sort();
+  const g4D = g4L.map(m=>Math.round(mesMap[m].sum/mesMap[m].cnt));
+  if(charts.g4) charts.g4.destroy();
+  charts.g4 = new Chart(document.getElementById('g4'),{
+    type:'line',
+    data:{labels:g4L.length?g4L:['Sin datos'],datasets:[{data:g4L.length?g4D:[0],borderColor:'#1976d2',backgroundColor:'#1976d220',tension:.3,pointRadius:4,fill:true}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:tickOpts,grid:{color:gridColor}},y:{beginAtZero:true,ticks:tickOpts,grid:{color:gridColor}}}}
+  });
+}
+ 
+// Init
+document.getElementById('fechaRegistro').value = new Date().toLocaleDateString('es-MX');
 actualizarFolio();
-
-impactoChange();
- 
-new Chart(g1,{type:'bar',data:{labels:['Sin datos'],datasets:[{data:[0]}]}});
-
-new Chart(g2,{type:'doughnut',data:{labels:['FA','LA','BP','RT','OB'],datasets:[{data:[0,0,0,0,0]}]}});
-
-new Chart(g3,{type:'bar',data:{labels:['Sin datos'],datasets:[{data:[0]}]}});
-
-new Chart(g4,{type:'line',data:{labels:['Sin datos'],datasets:[{data:[0]}]}});
+actualizarCharts();
 </script>
- 
 </body>
 </html>
-
- 
