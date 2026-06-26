@@ -51,6 +51,8 @@ tr:last-child td{border-bottom:none}
 .btn-save:hover{background:#1565c0}
 .btn-edit{background:#243347;color:#85b7eb;border:1px solid #2a3f5a;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-family:Segoe UI,sans-serif}
 .btn-edit:hover{background:#2e4060}
+.btn-del{background:#3d1a1a;color:#f09595;border:1px solid #5a2a2a;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-family:Segoe UI,sans-serif}
+.btn-del:hover{background:#5a2020}
 .filter-row{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
 .filter-row select{padding:5px 8px;font-size:12px;border:1px solid #3a5070;border-radius:6px;background:#162130;color:#e0e0e0;font-family:Segoe UI,sans-serif}
 .empty{text-align:center;padding:30px;color:#4a6a8a;font-size:13px}
@@ -498,6 +500,9 @@ function renderTabla(){
     const {turnos,extra} = tmDesglose(r.horasTM);
     const tmStr = turnos>0 ? `${r.horasTM}h (${turnos}T${extra>0?'+'+extra+'h':''})` : `${r.horasTM}h (extra)`;
     const puedEdit = r.registrador === usuarioActivo;
+    const acciones = puedEdit
+      ? `<div style="display:flex;gap:5px"><button class="btn-edit" onclick="abrirEdicion(${r._idx})">Editar</button><button class="btn-del" onclick="eliminarRegistro(${r._idx})" title="Eliminar registro">&#x2715; Eliminar</button></div>`
+      : '<span style="font-size:11px;color:#4a6a8a">—</span>';
     return `<tr>
 <td style="font-family:monospace;font-size:11px">${r.folio}</td>
 <td><span class="badge badge-${r.tipo}">${r.tipo}</span></td>
@@ -507,9 +512,23 @@ function renderTabla(){
 <td><span class="badge ${stCls}">${r.estatus}</span></td>
 <td>${r.diasResolucion!==null ? r.diasResolucion+' d' : '—'}</td>
 <td style="font-size:11px;color:#8aa0b8">${r.registrador}</td>
-<td>${puedEdit ? `<button class="btn-edit" onclick="abrirEdicion(${r._idx})">Editar</button>` : '<span style="font-size:11px;color:#4a6a8a">—</span>'}</td>
+<td>${acciones}</td>
 </tr>`;
   }).join('');
+}
+ 
+// ── Eliminar registro ─────────────────────────────────────
+function eliminarRegistro(idx){
+  const r = registros[idx];
+  if(r.registrador !== usuarioActivo){
+    alert('Solo ' + r.registrador + ' puede eliminar este registro.');
+    return;
+  }
+  if(!confirm(`¿Eliminar el registro ${r.folio}?\nEsta acción no se puede deshacer.`)) return;
+  registros.splice(idx, 1);
+  renderTabla();
+  actualizarKPIs();
+  actualizarCharts();
 }
  
 // ── KPIs ──────────────────────────────────────────────────
@@ -598,8 +617,3 @@ actualizarCharts();
 </script>
 </body>
 </html>
-
-see less
-Reply in thread
-has context menu
-Post in channel
