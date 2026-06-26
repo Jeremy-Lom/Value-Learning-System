@@ -10,38 +10,30 @@
 body{background:#1a1a2e;color:#e0e0e0;font-family:Segoe UI,sans-serif;min-height:100vh}
 .header{background:#173454;padding:14px 24px;font-size:20px;font-weight:600;display:flex;align-items:center;gap:10px;border-bottom:1px solid #0f2544}
 .container{padding:20px;display:flex;flex-direction:column;gap:16px}
-/* KPIs */
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 .kpi{background:#1e2a3a;border:1px solid #2a3f5a;border-radius:10px;padding:14px 16px}
 .kpi-label{font-size:11px;color:#8aa0b8;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
 .kpi-value{font-size:26px;font-weight:700;color:#e8f0ff}
 .kpi-sub{font-size:11px;color:#5a7a9a;margin-top:3px}
-/* Charts */
 .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .chart-card{background:#1e2a3a;border:1px solid #2a3f5a;border-radius:10px;padding:14px}
 .chart-title{font-size:12px;color:#8aa0b8;margin-bottom:10px;font-weight:600}
 .canvas-wrap{position:relative;width:100%;height:170px}
-/* Panel */
 .panel{background:#1e2a3a;border:1px solid #2a3f5a;border-radius:10px;padding:18px}
-/* Tabs */
 .tabs{display:flex;gap:4px;border-bottom:1px solid #2a3f5a;margin-bottom:16px}
 .tab{padding:8px 16px;font-size:13px;cursor:pointer;border-radius:8px 8px 0 0;color:#8aa0b8;border:none;background:none;font-family:Segoe UI,sans-serif}
 .tab.active{background:#243347;color:#e0eaff;font-weight:600}
-/* User bar */
 .user-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#162130;border-radius:8px;margin-bottom:14px;font-size:12px;color:#8aa0b8;border:1px solid #2a3f5a}
 .user-bar input{flex:1;border:1px solid #3a5070;border-radius:6px;padding:5px 10px;font-size:12px;background:#1a2d42;color:#e0e0e0;font-family:Segoe UI,sans-serif}
-.user-btn{padding:5px 14px;font-size:12px;background:#1976d2;color:#fff;border:none;border-radius:6px;cursor:pointer}
-/* Section label */
+.user-btn{padding:5px 14px;font-size:12px;background:#1976d2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:Segoe UI,sans-serif}
 .sec-label{font-size:11px;font-weight:700;color:#5a8ab8;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #243347}
-/* Form */
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .fg{display:flex;flex-direction:column;gap:4px}
 .fg label{font-size:12px;color:#8aa0b8}
 .fg input,.fg select,.fg textarea{padding:7px 10px;border:1px solid #3a5070;border-radius:6px;background:#162130;color:#e0e0e0;font-size:13px;font-family:Segoe UI,sans-serif;width:100%}
 .fg textarea{resize:vertical}
-.fg input[readonly]{opacity:.55;cursor:default}
+.fg input[readonly],.fg input:disabled,.fg select:disabled,.fg textarea:disabled{opacity:.45;cursor:not-allowed}
 hr.div{border:none;border-top:1px solid #243347;margin:14px 0}
-/* Badges */
 .badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600}
 .badge-FA{background:#3d1a1a;color:#f09595}
 .badge-LA{background:#1a2d3d;color:#85b7eb}
@@ -51,19 +43,39 @@ hr.div{border:none;border-top:1px solid #243347;margin:14px 0}
 .st-abierto{background:#3d2e0a;color:#ef9f27}
 .st-proceso{background:#1a2d3d;color:#85b7eb}
 .st-cerrado{background:#1a2d1a;color:#97c459}
-/* Table */
 table{width:100%;border-collapse:collapse;font-size:12px}
 th{text-align:left;padding:8px 10px;background:#162130;color:#8aa0b8;font-weight:600;border-bottom:1px solid #2a3f5a}
 td{padding:8px 10px;border-bottom:1px solid #1e2d3d;color:#c8d8e8}
 tr:last-child td{border-bottom:none}
-/* Buttons */
 .btn-save{background:#1976d2;color:#fff;border:none;padding:9px 22px;border-radius:7px;cursor:pointer;font-size:13px;font-weight:600;font-family:Segoe UI,sans-serif}
 .btn-save:hover{background:#1565c0}
-/* Filters */
-.filter-row{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+.btn-edit{background:#243347;color:#85b7eb;border:1px solid #2a3f5a;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-family:Segoe UI,sans-serif}
+.btn-edit:hover{background:#2e4060}
+.filter-row{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
 .filter-row select{padding:5px 8px;font-size:12px;border:1px solid #3a5070;border-radius:6px;background:#162130;color:#e0e0e0;font-family:Segoe UI,sans-serif}
 .empty{text-align:center;padding:30px;color:#4a6a8a;font-size:13px}
 .lock-notice{font-size:11px;color:#5a7a9a;display:flex;align-items:center;gap:5px}
+/* Multi-select departamentos */
+.dept-selector{border:1px solid #3a5070;border-radius:6px;background:#162130;padding:6px;max-height:130px;overflow-y:auto}
+.dept-option{display:flex;align-items:center;gap:7px;padding:3px 5px;cursor:pointer;border-radius:4px;font-size:12px;color:#c8d8e8}
+.dept-option:hover{background:#243347}
+.dept-option input[type=checkbox]{accent-color:#1976d2;width:13px;height:13px;cursor:pointer}
+/* Evidencia */
+.upload-area{border:1px dashed #3a5070;border-radius:6px;background:#162130;padding:14px;text-align:center;cursor:pointer;font-size:12px;color:#8aa0b8;transition:border-color .2s}
+.upload-area:hover{border-color:#1976d2;color:#85b7eb}
+.file-list{margin-top:8px;display:flex;flex-direction:column;gap:4px}
+.file-item{display:flex;align-items:center;gap:8px;padding:5px 8px;background:#243347;border-radius:5px;font-size:11px;color:#c8d8e8}
+.file-item span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-item button{background:none;border:none;color:#f09595;cursor:pointer;font-size:14px;line-height:1}
+/* TM info box */
+.tm-info{font-size:11px;color:#5a7a9a;margin-top:4px;padding:5px 8px;background:#162130;border-radius:5px;border-left:2px solid #1976d2}
+/* Edit modal overlay */
+.modal-overlay{display:none;position:fixed;inset:0;background:#000a;z-index:100;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#1e2a3a;border:1px solid #2a3f5a;border-radius:12px;padding:22px;width:min(680px,95vw);max-height:90vh;overflow-y:auto}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.modal-title{font-size:15px;font-weight:600;color:#e0eaff}
+.modal-close{background:none;border:none;color:#8aa0b8;cursor:pointer;font-size:20px}
 </style>
 </head>
 <body>
@@ -74,17 +86,33 @@ tr:last-child td{border-bottom:none}
  
 <!-- KPIs -->
 <div class="kpi-grid">
-<div class="kpi"><div class="kpi-label">Horas tiempo muerto total</div><div class="kpi-value" id="kpi-horas">0 h</div><div class="kpi-sub">acumulado</div></div>
-<div class="kpi"><div class="kpi-label">Días perdidos por fallas</div><div class="kpi-value" id="kpi-dias">0.0 d</div><div class="kpi-sub">tipo FA / RT</div></div>
-<div class="kpi"><div class="kpi-label">Tiempo prom. resolución</div><div class="kpi-value" id="kpi-prom">— d</div><div class="kpi-sub">apertura → cierre</div></div>
-<div class="kpi"><div class="kpi-label">Registros totales</div><div class="kpi-value" id="kpi-total">0</div><div class="kpi-sub" id="kpi-abiertos">0 abiertos</div></div>
+<div class="kpi">
+<div class="kpi-label">Tiempo muerto total</div>
+<div class="kpi-value" id="kpi-horas">0 h</div>
+<div class="kpi-sub" id="kpi-horas-sub">equivale a 0 turnos + 0 h extra</div>
+</div>
+<div class="kpi">
+<div class="kpi-label">Días perdidos FA / RT</div>
+<div class="kpi-value" id="kpi-dias">0 d</div>
+<div class="kpi-sub" id="kpi-dias-sub">0 turnos completos + 0 h extra</div>
+</div>
+<div class="kpi">
+<div class="kpi-label">Tiempo prom. resolución</div>
+<div class="kpi-value" id="kpi-prom">— d</div>
+<div class="kpi-sub">apertura → cierre</div>
+</div>
+<div class="kpi">
+<div class="kpi-label">Registros totales</div>
+<div class="kpi-value" id="kpi-total">0</div>
+<div class="kpi-sub" id="kpi-abiertos">0 abiertos</div>
+</div>
 </div>
  
 <!-- Gráficas -->
 <div class="charts-grid">
 <div class="chart-card"><div class="chart-title">Tiempo muerto por proyecto (h)</div><div class="canvas-wrap"><canvas id="g1"></canvas></div></div>
 <div class="chart-card"><div class="chart-title">Registros por tipo</div><div class="canvas-wrap"><canvas id="g2"></canvas></div></div>
-<div class="chart-card"><div class="chart-title">Días perdidos por tipo de falla</div><div class="canvas-wrap"><canvas id="g3"></canvas></div></div>
+<div class="chart-card"><div class="chart-title">Turnos perdidos por tipo de falla (turno = 9 h)</div><div class="canvas-wrap"><canvas id="g3"></canvas></div></div>
 <div class="chart-card"><div class="chart-title">Tiempo promedio resolución por mes (días)</div><div class="canvas-wrap"><canvas id="g4"></canvas></div></div>
 </div>
  
@@ -133,33 +161,43 @@ tr:last-child td{border-bottom:none}
 <option>Otros</option>
 </select>
 </div>
-<div class="fg"><label>Departamento</label>
-<select id="depto">
-<option>Producción</option>
-<option>Ingeniería F&amp;P</option>
-<option>Ingeniería HVAC</option>
-<option>ADP</option>
-<option>RH</option>
-<option>Calidad</option>
-<option>Procesos</option>
-<option>Compras</option>
-</select>
+<div class="fg">
+<label>Horas de tiempo muerto <span style="color:#5a7a9a">(turno = 9 h, excedente = tiempo extra)</span></label>
+<input type="number" id="horasTM" min="0" step="0.5" placeholder="0" value="0" oninput="actualizarTMInfo()">
+<div class="tm-info" id="tmInfo">Ingresa las horas de paro — se calcularán turnos y tiempo extra automáticamente.</div>
 </div>
-<div class="fg"><label>Impacto económico</label>
-<select id="impacto">
-<option>Costo de falla</option>
-<option>Ahorro / Buena práctica</option>
-<option>Sin impacto económico</option>
-</select>
 </div>
-<div class="fg"><label>Horas tiempo muerto</label><input type="number" id="horasTM" min="0" placeholder="0" value="0"></div>
+ 
+    <div class="fg" style="margin-top:10px"><label>Descripción del hallazgo</label><textarea id="descripcion" rows="3" placeholder="Describe el hallazgo..."></textarea></div>
+ 
+    <!-- Evidencia -->
+<div style="margin-top:12px">
+<div class="fg"><label>Evidencia (imágenes, PDFs, documentos)</label>
+<div class="upload-area" onclick="document.getElementById('fileInput').click()">
+&#128206; Haz clic para adjuntar archivos o arrástralos aquí
 </div>
-<div class="fg" style="margin-top:10px"><label>Descripción del hallazgo</label><textarea id="descripcion" rows="3" placeholder="Describe el hallazgo..."></textarea></div>
+<input type="file" id="fileInput" multiple accept="image/*,.pdf,.doc,.docx,.xlsx,.xls" style="display:none" onchange="agregarArchivos(this.files)">
+<div class="file-list" id="fileList"></div>
+</div>
+</div>
  
     <hr class="div">
  
-    <div class="form-grid">
-<div class="fg"><label>Responsable</label><input id="responsable" placeholder="Nombre del responsable"></div>
+    <!-- Seguimiento -->
+<div class="form-grid">
+<div class="fg">
+<label>Departamentos responsables del seguimiento</label>
+<div class="dept-selector" id="deptSelector">
+<label class="dept-option"><input type="checkbox" value="Producción"> Producción</label>
+<label class="dept-option"><input type="checkbox" value="Ingeniería F&P"> Ingeniería F&amp;P</label>
+<label class="dept-option"><input type="checkbox" value="Ingeniería HVAC"> Ingeniería HVAC</label>
+<label class="dept-option"><input type="checkbox" value="ADP"> ADP</label>
+<label class="dept-option"><input type="checkbox" value="RH"> RH</label>
+<label class="dept-option"><input type="checkbox" value="Calidad"> Calidad</label>
+<label class="dept-option"><input type="checkbox" value="Procesos"> Procesos</label>
+<label class="dept-option"><input type="checkbox" value="Compras"> Compras</label>
+</div>
+</div>
 <div class="fg"><label>Estatus</label>
 <select id="estatus">
 <option value="Abierto">Abierto</option>
@@ -169,13 +207,12 @@ tr:last-child td{border-bottom:none}
 </div>
 <div class="fg"><label>Fecha implementación</label><input type="date" id="fechaImpl"></div>
 <div class="fg"><label>Fecha cierre</label><input type="date" id="fechaCierre"></div>
-<div class="fg"><label>Nombre quien cierra</label><input id="quienCierra" placeholder="Quien cierra el hallazgo"></div>
 </div>
 <div class="fg" style="margin-top:10px"><label>Acción correctiva</label><textarea id="accionCorrectiva" rows="3" placeholder="Describe la acción correctiva..."></textarea></div>
  
     <div style="margin-top:14px;display:flex;align-items:center;gap:14px">
 <button class="btn-save" onclick="guardar()">Guardar registro</button>
-<div class="lock-notice" id="lockNotice" style="display:none">&#128274; Solo el registrador puede editar este folio</div>
+<div class="lock-notice">&#128274; Cada registrador solo puede editar sus propios registros</div>
 </div>
 </div>
  
@@ -202,8 +239,8 @@ tr:last-child td{border-bottom:none}
 <table>
 <thead>
 <tr>
-<th>Folio</th><th>Tipo</th><th>Proyecto</th><th>Departamento</th>
-<th>Tiempo muerto</th><th>Estatus</th><th>Días resolución</th><th>Registrador</th>
+<th>Folio</th><th>Tipo</th><th>Proyecto</th><th>Deptos. responsables</th>
+<th>Tiempo muerto</th><th>Estatus</th><th>Días resolución</th><th>Registrador</th><th>Acción</th>
 </tr>
 </thead>
 <tbody id="tablaBody"></tbody>
@@ -215,26 +252,130 @@ tr:last-child td{border-bottom:none}
  
 </div><!-- /container -->
  
+<!-- Modal edición -->
+<div class="modal-overlay" id="modalOverlay">
+<div class="modal">
+<div class="modal-header">
+<div class="modal-title" id="modalTitle">Editar registro</div>
+<button class="modal-close" onclick="cerrarModal()">&#x2715;</button>
+</div>
+<div class="form-grid">
+<div class="fg"><label>Estatus</label>
+<select id="m-estatus">
+<option value="Abierto">Abierto</option>
+<option value="En Proceso">En Proceso</option>
+<option value="Cerrado">Cerrado</option>
+</select>
+</div>
+<div class="fg"><label>Fecha implementación</label><input type="date" id="m-fechaImpl"></div>
+<div class="fg"><label>Fecha cierre</label><input type="date" id="m-fechaCierre"></div>
+<div class="fg">
+<label>Departamentos responsables</label>
+<div class="dept-selector" id="m-deptSelector">
+<label class="dept-option"><input type="checkbox" value="Producción"> Producción</label>
+<label class="dept-option"><input type="checkbox" value="Ingeniería F&P"> Ingeniería F&amp;P</label>
+<label class="dept-option"><input type="checkbox" value="Ingeniería HVAC"> Ingeniería HVAC</label>
+<label class="dept-option"><input type="checkbox" value="ADP"> ADP</label>
+<label class="dept-option"><input type="checkbox" value="RH"> RH</label>
+<label class="dept-option"><input type="checkbox" value="Calidad"> Calidad</label>
+<label class="dept-option"><input type="checkbox" value="Procesos"> Procesos</label>
+<label class="dept-option"><input type="checkbox" value="Compras"> Compras</label>
+</div>
+</div>
+</div>
+<div class="fg" style="margin-top:10px"><label>Acción correctiva</label><textarea id="m-accionCorrectiva" rows="3"></textarea></div>
+<div class="fg" style="margin-top:10px"><label>Descripción del hallazgo</label><textarea id="m-descripcion" rows="3"></textarea></div>
+<div style="margin-top:14px;display:flex;gap:10px">
+<button class="btn-save" onclick="guardarEdicion()">Guardar cambios</button>
+<button class="btn-edit" style="padding:9px 18px" onclick="cerrarModal()">Cancelar</button>
+</div>
+</div>
+</div>
+ 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
+const TURNO_H = 9; // horas por turno
 let consecutivo = 1;
 let registros = [];
 let usuarioActivo = '';
+let archivosTemp = [];
 let charts = {};
+let editIdx = null;
  
+// ── Usuario ──────────────────────────────────────────────
 function setUsuario(){
   const v = document.getElementById('usuarioActual').value.trim();
   if(!v){ alert('Escribe tu nombre antes de confirmar.'); return; }
   usuarioActivo = v;
   document.getElementById('usuarioConfirmado').textContent = '✓ ' + v;
-  document.getElementById('lockNotice').style.display = 'flex';
 }
  
+// ── Folio ─────────────────────────────────────────────────
 function actualizarFolio(){
   const tipo = document.getElementById('tipo').value;
   const year = new Date().getFullYear();
   document.getElementById('folio').value = year + '-' + tipo + '-' + String(consecutivo).padStart(5,'0');
 }
  
+// ── TM info en tiempo real ────────────────────────────────
+function actualizarTMInfo(){
+  const h = parseFloat(document.getElementById('horasTM').value)||0;
+  const turnos = Math.floor(h / TURNO_H);
+  const extra  = +(h % TURNO_H).toFixed(1);
+  let msg = '';
+  if(h === 0){
+    msg = 'Ingresa las horas de paro — se calcularán turnos y tiempo extra automáticamente.';
+  } else if(extra === 0){
+    msg = `${turnos} turno${turnos!==1?'s':''} completo${turnos!==1?'s':''} de paro (sin tiempo extra).`;
+  } else if(turnos === 0){
+    msg = `Menos de un turno: ${extra} h de tiempo extra (sin turno completo perdido).`;
+  } else {
+    msg = `${turnos} turno${turnos!==1?'s':''} completo${turnos!==1?'s':''} + ${extra} h de tiempo extra.`;
+  }
+  document.getElementById('tmInfo').textContent = msg;
+}
+ 
+// ── Archivos ──────────────────────────────────────────────
+function agregarArchivos(files){
+  for(const f of files){
+    if(!archivosTemp.find(a=>a.name===f.name&&a.size===f.size)){
+      archivosTemp.push(f);
+    }
+  }
+  renderFileList();
+}
+ 
+function quitarArchivo(idx){
+  archivosTemp.splice(idx,1);
+  renderFileList();
+}
+ 
+function renderFileList(){
+  document.getElementById('fileList').innerHTML = archivosTemp.map((f,i)=>{
+    const icon = f.type.startsWith('image/') ? '🖼️' : f.name.endsWith('.pdf') ? '📄' : '📎';
+    const kb = (f.size/1024).toFixed(1);
+    return `<div class="file-item">${icon}<span>${f.name}</span><span style="color:#5a7a9a;white-space:nowrap">${kb} KB</span><button onclick="quitarArchivo(${i})" title="Quitar">&#x2715;</button></div>`;
+  }).join('');
+}
+ 
+// Drag & drop
+const uploadArea = document.querySelector('.upload-area');
+uploadArea.addEventListener('dragover', e=>{ e.preventDefault(); uploadArea.style.borderColor='#1976d2'; });
+uploadArea.addEventListener('dragleave', ()=>{ uploadArea.style.borderColor='#3a5070'; });
+uploadArea.addEventListener('drop', e=>{ e.preventDefault(); uploadArea.style.borderColor='#3a5070'; agregarArchivos(e.dataTransfer.files); });
+ 
+// ── Leer checkboxes deptos ────────────────────────────────
+function leerDeptos(containerId){
+  return Array.from(document.querySelectorAll(`#${containerId} input[type=checkbox]:checked`)).map(c=>c.value);
+}
+ 
+function setDeptos(containerId, arr){
+  document.querySelectorAll(`#${containerId} input[type=checkbox]`).forEach(c=>{
+    c.checked = arr.includes(c.value);
+  });
+}
+ 
+// ── Tabs ──────────────────────────────────────────────────
 function showTab(t){
   document.getElementById('tab-registro').style.display = t==='registro' ? 'block' : 'none';
   document.getElementById('tab-tabla').style.display = t==='tabla' ? 'block' : 'none';
@@ -244,153 +385,221 @@ function showTab(t){
   if(t==='tabla') renderTabla();
 }
  
+// ── Helpers tiempo ────────────────────────────────────────
 function diasEntre(d1, d2){
   if(!d1||!d2) return null;
   const a = new Date(d1), b = new Date(d2);
   return Math.max(0, Math.round((b-a)/(1000*60*60*24)));
 }
  
+function tmDesglose(horas){
+  const turnos = Math.floor(horas / TURNO_H);
+  const extra  = +(horas % TURNO_H).toFixed(1);
+  return { turnos, extra };
+}
+ 
+// ── Guardar nuevo registro ────────────────────────────────
 function guardar(){
   if(!usuarioActivo){ alert('Confirma tu nombre antes de guardar.'); return; }
   const fechaCierre = document.getElementById('fechaCierre').value;
-  const fechaHoy = new Date().toISOString().split('T')[0];
-  const horas = parseFloat(document.getElementById('horasTM').value)||0;
-  const dias = diasEntre(fechaHoy, fechaCierre);
+  const fechaHoy    = new Date().toISOString().split('T')[0];
+  const horas       = parseFloat(document.getElementById('horasTM').value)||0;
  
   registros.push({
-    folio: document.getElementById('folio').value,
-    tipo: document.getElementById('tipo').value,
-    numero: document.getElementById('numeroProyecto').value.trim(),
-    proyecto: (document.getElementById('numeroProyecto').value.trim()||'') +
-              (document.getElementById('nombreProyecto').value.trim() ? ' - '+document.getElementById('nombreProyecto').value.trim() : ''),
-    depto: document.getElementById('depto').value,
-    fase: document.getElementById('fase').value,
-    impacto: document.getElementById('impacto').value,
-    horasTM: horas,
-    descripcion: document.getElementById('descripcion').value,
-    responsable: document.getElementById('responsable').value,
-    estatus: document.getElementById('estatus').value,
-    fechaImpl: document.getElementById('fechaImpl').value,
-    fechaCierre: fechaCierre,
-    quienCierra: document.getElementById('quienCierra').value,
+    folio:            document.getElementById('folio').value,
+    tipo:             document.getElementById('tipo').value,
+    numero:           document.getElementById('numeroProyecto').value.trim(),
+    proyecto:         (document.getElementById('numeroProyecto').value.trim()||'') +
+                      (document.getElementById('nombreProyecto').value.trim() ? ' - '+document.getElementById('nombreProyecto').value.trim() : ''),
+    fase:             document.getElementById('fase').value,
+    horasTM:          horas,
+    descripcion:      document.getElementById('descripcion').value,
+    deptos:           leerDeptos('deptSelector'),
+    estatus:          document.getElementById('estatus').value,
+    fechaImpl:        document.getElementById('fechaImpl').value,
+    fechaCierre:      fechaCierre,
     accionCorrectiva: document.getElementById('accionCorrectiva').value,
-    registrador: usuarioActivo,
-    fechaRegistro: fechaHoy,
-    diasResolucion: dias
+    archivos:         archivosTemp.map(f=>f.name),
+    registrador:      usuarioActivo,
+    fechaRegistro:    fechaHoy,
+    diasResolucion:   diasEntre(fechaHoy, fechaCierre)
   });
  
   consecutivo++;
   actualizarFolio();
  
-  ['numeroProyecto','nombreProyecto','descripcion','responsable','quienCierra','accionCorrectiva'].forEach(id=>{
+  ['numeroProyecto','nombreProyecto','descripcion','accionCorrectiva'].forEach(id=>{
     document.getElementById(id).value = '';
   });
   document.getElementById('horasTM').value = '0';
+  actualizarTMInfo();
   document.getElementById('estatus').value = 'Abierto';
   document.getElementById('fechaImpl').value = '';
   document.getElementById('fechaCierre').value = '';
+  document.querySelectorAll('#deptSelector input[type=checkbox]').forEach(c=>c.checked=false);
+  archivosTemp = [];
+  renderFileList();
  
+  actualizarKPIs();
+  actualizarCharts();
+  alert('Registro guardado correctamente.');
+}
+ 
+// ── Modal edición ─────────────────────────────────────────
+function abrirEdicion(idx){
+  const r = registros[idx];
+  if(r.registrador !== usuarioActivo){
+    alert('Solo ' + r.registrador + ' puede editar este registro.');
+    return;
+  }
+  editIdx = idx;
+  document.getElementById('modalTitle').textContent = 'Editar ' + r.folio;
+  document.getElementById('m-estatus').value = r.estatus;
+  document.getElementById('m-fechaImpl').value = r.fechaImpl||'';
+  document.getElementById('m-fechaCierre').value = r.fechaCierre||'';
+  document.getElementById('m-accionCorrectiva').value = r.accionCorrectiva||'';
+  document.getElementById('m-descripcion').value = r.descripcion||'';
+  setDeptos('m-deptSelector', r.deptos||[]);
+  document.getElementById('modalOverlay').classList.add('open');
+}
+ 
+function cerrarModal(){
+  document.getElementById('modalOverlay').classList.remove('open');
+  editIdx = null;
+}
+ 
+function guardarEdicion(){
+  if(editIdx === null) return;
+  const r = registros[editIdx];
+  const fechaCierre = document.getElementById('m-fechaCierre').value;
+  r.estatus          = document.getElementById('m-estatus').value;
+  r.fechaImpl        = document.getElementById('m-fechaImpl').value;
+  r.fechaCierre      = fechaCierre;
+  r.accionCorrectiva = document.getElementById('m-accionCorrectiva').value;
+  r.descripcion      = document.getElementById('m-descripcion').value;
+  r.deptos           = leerDeptos('m-deptSelector');
+  r.diasResolucion   = diasEntre(r.fechaRegistro, fechaCierre);
+  cerrarModal();
+  renderTabla();
   actualizarKPIs();
   actualizarCharts();
 }
  
+// ── Tabla ─────────────────────────────────────────────────
+function renderTabla(){
+  const filtroT = document.getElementById('filtroTipo').value;
+  const filtroE = document.getElementById('filtroEstatus').value;
+  const filtrados = registros.map((r,i)=>({...r,_idx:i}))
+    .filter(r=>(!filtroT||r.tipo===filtroT)&&(!filtroE||r.estatus===filtroE));
+  document.getElementById('emptyState').style.display = filtrados.length ? 'none' : 'block';
+  document.getElementById('tablaBody').innerHTML = filtrados.map(r=>{
+    const stCls = r.estatus==='Abierto'?'st-abierto':r.estatus==='En Proceso'?'st-proceso':'st-cerrado';
+    const depList = (r.deptos||[]).join(', ')||'—';
+    const {turnos,extra} = tmDesglose(r.horasTM);
+    const tmStr = turnos>0 ? `${r.horasTM}h (${turnos}T${extra>0?'+'+extra+'h':''})` : `${r.horasTM}h (extra)`;
+    const puedEdit = r.registrador === usuarioActivo;
+    return `<tr>
+<td style="font-family:monospace;font-size:11px">${r.folio}</td>
+<td><span class="badge badge-${r.tipo}">${r.tipo}</span></td>
+<td>${r.proyecto||'—'}</td>
+<td style="font-size:11px">${depList}</td>
+<td style="white-space:nowrap">${tmStr}</td>
+<td><span class="badge ${stCls}">${r.estatus}</span></td>
+<td>${r.diasResolucion!==null ? r.diasResolucion+' d' : '—'}</td>
+<td style="font-size:11px;color:#8aa0b8">${r.registrador}</td>
+<td>${puedEdit ? `<button class="btn-edit" onclick="abrirEdicion(${r._idx})">Editar</button>` : '<span style="font-size:11px;color:#4a6a8a">—</span>'}</td>
+</tr>`;
+  }).join('');
+}
+ 
+// ── KPIs ──────────────────────────────────────────────────
 function actualizarKPIs(){
-  const total = registros.length;
-  const totalHoras = registros.reduce((s,r)=>s+r.horasTM, 0);
-  const diasFallas = registros.filter(r=>r.tipo==='FA'||r.tipo==='RT').reduce((s,r)=>s+(r.horasTM/8), 0);
+  const total       = registros.length;
+  const totalHoras  = registros.reduce((s,r)=>s+r.horasTM, 0);
+  const {turnos:tT, extra:eT} = tmDesglose(totalHoras);
+ 
+  const horasFallas = registros.filter(r=>r.tipo==='FA'||r.tipo==='RT').reduce((s,r)=>s+r.horasTM, 0);
+  const {turnos:tF, extra:eF} = tmDesglose(horasFallas);
+ 
   const cerrados = registros.filter(r=>r.estatus==='Cerrado'&&r.diasResolucion!==null);
   const promDias = cerrados.length ? Math.round(cerrados.reduce((s,r)=>s+r.diasResolucion,0)/cerrados.length) : null;
   const abiertos = registros.filter(r=>r.estatus==='Abierto').length;
  
-  document.getElementById('kpi-horas').textContent = Math.round(totalHoras) + ' h';
-  document.getElementById('kpi-dias').textContent = diasFallas.toFixed(1) + ' d';
+  document.getElementById('kpi-horas').textContent = totalHoras + ' h';
+  document.getElementById('kpi-horas-sub').textContent = `${tT} turno${tT!==1?'s':''} completo${tT!==1?'s':''} + ${eT} h extra`;
+ 
+  const diasFallas = +(horasFallas / TURNO_H).toFixed(1);
+  document.getElementById('kpi-dias').textContent = diasFallas + ' d';
+  document.getElementById('kpi-dias-sub').textContent = `${tF} turno${tF!==1?'s':''} completo${tF!==1?'s':''} + ${eF} h extra`;
+ 
   document.getElementById('kpi-prom').textContent = promDias!==null ? promDias+' d' : '— d';
   document.getElementById('kpi-total').textContent = total;
   document.getElementById('kpi-abiertos').textContent = abiertos + ' abiertos';
 }
  
-function renderTabla(){
-  const filtroT = document.getElementById('filtroTipo').value;
-  const filtroE = document.getElementById('filtroEstatus').value;
-  const filtrados = registros.filter(r=>(!filtroT||r.tipo===filtroT)&&(!filtroE||r.estatus===filtroE));
-  document.getElementById('emptyState').style.display = filtrados.length ? 'none' : 'block';
-  document.getElementById('tablaBody').innerHTML = filtrados.map(r=>{
-    const stCls = r.estatus==='Abierto'?'st-abierto':r.estatus==='En Proceso'?'st-proceso':'st-cerrado';
-    return `<tr>
-<td style="font-family:monospace;font-size:11px">${r.folio}</td>
-<td><span class="badge badge-${r.tipo}">${r.tipo}</span></td>
-<td>${r.proyecto||'—'}</td>
-<td>${r.depto}</td>
-<td>${r.horasTM} h</td>
-<td><span class="badge ${stCls}">${r.estatus}</span></td>
-<td>${r.diasResolucion!==null ? r.diasResolucion+' d' : '—'}</td>
-<td style="font-size:11px;color:#8aa0b8">${r.registrador}</td>
-</tr>`;
-  }).join('');
-}
- 
+// ── Charts ────────────────────────────────────────────────
 function actualizarCharts(){
-  const tickOpts = { color:'#8aa0b8', font:{size:10} };
-  const gridColor = '#243347';
+  const tick = { color:'#8aa0b8', font:{size:10} };
+  const grid = '#243347';
  
   // G1 Horas TM por proyecto
   const proyMap = {};
-  registros.forEach(r=>{
-    const k = r.numero||'Sin proyecto';
-    proyMap[k] = (proyMap[k]||0) + r.horasTM;
-  });
-  const g1L = Object.keys(proyMap), g1D = Object.values(proyMap);
+  registros.forEach(r=>{ const k=r.numero||'Sin proyecto'; proyMap[k]=(proyMap[k]||0)+r.horasTM; });
+  const g1L=Object.keys(proyMap), g1D=Object.values(proyMap);
   if(charts.g1) charts.g1.destroy();
   charts.g1 = new Chart(document.getElementById('g1'),{
     type:'bar',
-    data:{labels:g1L.length?g1L:['Sin datos'],datasets:[{data:g1L.length?g1D:[0],backgroundColor:'#1976d299',borderColor:'#1976d2',borderWidth:1}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-      scales:{x:{ticks:tickOpts,grid:{color:gridColor}},y:{beginAtZero:true,ticks:tickOpts,grid:{color:gridColor}}}}
+    data:{labels:g1L.length?g1L:['Sin datos'],datasets:[{label:'Horas',data:g1L.length?g1D:[0],backgroundColor:'#1976d299',borderColor:'#1976d2',borderWidth:1}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:tick,grid:{color:grid}},y:{beginAtZero:true,ticks:tick,grid:{color:grid}}}}
   });
  
   // G2 Por tipo
   const tipos=['FA','LA','BP','RT','OB'];
-  const conteos = tipos.map(t=>registros.filter(r=>r.tipo===t).length);
+  const conteos=tipos.map(t=>registros.filter(r=>r.tipo===t).length);
   if(charts.g2) charts.g2.destroy();
   charts.g2 = new Chart(document.getElementById('g2'),{
     type:'doughnut',
     data:{labels:tipos,datasets:[{data:conteos,backgroundColor:['#E24B4A','#378ADD','#639922','#EF9F27','#7F77DD'],borderWidth:1,borderColor:'#1e2a3a'}]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:'right',labels:{color:'#8aa0b8',font:{size:10},boxWidth:10}}}}
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#8aa0b8',font:{size:10},boxWidth:10}}}}
   });
  
-  // G3 Días perdidos FA / RT
-  const diasPorTipo = ['FA','RT'].map(t=>registros.filter(r=>r.tipo===t).reduce((s,r)=>s+(r.horasTM/8),0));
+  // G3 Turnos perdidos FA / RT (horas/9)
+  const turnosPorTipo = ['FA','RT'].map(t=>
+    +(registros.filter(r=>r.tipo===t).reduce((s,r)=>s+r.horasTM,0)/TURNO_H).toFixed(2)
+  );
   if(charts.g3) charts.g3.destroy();
   charts.g3 = new Chart(document.getElementById('g3'),{
     type:'bar',
-    data:{labels:['Falla (FA)','Retrabajo (RT)'],datasets:[{data:diasPorTipo,backgroundColor:['#E24B4A99','#EF9F2799'],borderColor:['#E24B4A','#EF9F27'],borderWidth:1}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-      scales:{x:{ticks:tickOpts,grid:{color:gridColor}},y:{beginAtZero:true,ticks:tickOpts,grid:{color:gridColor}}}}
+    data:{labels:['Falla (FA)','Retrabajo (RT)'],datasets:[{label:'Turnos',data:turnosPorTipo,backgroundColor:['#E24B4A99','#EF9F2799'],borderColor:['#E24B4A','#EF9F27'],borderWidth:1}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:tick,grid:{color:grid}},y:{beginAtZero:true,ticks:{...tick,callback:v=>v+' T'},grid:{color:grid}}}}
   });
  
   // G4 Prom resolución por mes
-  const mesMap = {};
+  const mesMap={};
   registros.filter(r=>r.diasResolucion!==null&&r.fechaCierre).forEach(r=>{
-    const mes = r.fechaCierre.substring(0,7);
+    const mes=r.fechaCierre.substring(0,7);
     if(!mesMap[mes]) mesMap[mes]={sum:0,cnt:0};
-    mesMap[mes].sum += r.diasResolucion; mesMap[mes].cnt++;
+    mesMap[mes].sum+=r.diasResolucion; mesMap[mes].cnt++;
   });
-  const g4L = Object.keys(mesMap).sort();
-  const g4D = g4L.map(m=>Math.round(mesMap[m].sum/mesMap[m].cnt));
+  const g4L=Object.keys(mesMap).sort();
+  const g4D=g4L.map(m=>Math.round(mesMap[m].sum/mesMap[m].cnt));
   if(charts.g4) charts.g4.destroy();
   charts.g4 = new Chart(document.getElementById('g4'),{
     type:'line',
     data:{labels:g4L.length?g4L:['Sin datos'],datasets:[{data:g4L.length?g4D:[0],borderColor:'#1976d2',backgroundColor:'#1976d220',tension:.3,pointRadius:4,fill:true}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-      scales:{x:{ticks:tickOpts,grid:{color:gridColor}},y:{beginAtZero:true,ticks:tickOpts,grid:{color:gridColor}}}}
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:tick,grid:{color:grid}},y:{beginAtZero:true,ticks:tick,grid:{color:grid}}}}
   });
 }
  
-// Init
+// ── Init ──────────────────────────────────────────────────
 document.getElementById('fechaRegistro').value = new Date().toLocaleDateString('es-MX');
 actualizarFolio();
 actualizarCharts();
 </script>
 </body>
 </html>
+
+see less
+Reply in thread
+has context menu
+Post in channel
