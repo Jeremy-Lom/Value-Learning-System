@@ -135,7 +135,7 @@ tr:last-child td{border-bottom:none}
 &#128100;
 <span>Registrador:</span>
 <input type="text" id="usuarioActual" placeholder="Tu nombre completo">
-<button class="user-btn" id="btnConfirmUser" onclick="setUsuario()" disabled>Confirmar</button>
+<button class="user-btn" id="btnConfirmUser" onclick="setUsuario()">Confirmar</button>
 <span id="usuarioConfirmado" style="color:#97c459;font-weight:600"></span>
 </div>
 
@@ -342,14 +342,13 @@ function setConn(estado, texto){
 
 auth.signInAnonymously().catch(err=>{
   console.error(err);
-  setConn('err', 'No se pudo conectar con la base de datos.');
+  setConn('err', 'Error de conexión: ' + err.code);
 });
 
 auth.onAuthStateChanged(user=>{
   if(user){
     usuarioUid = user.uid;
     setConn('ok', 'Conectado');
-    document.getElementById('btnConfirmUser').disabled = false;
     iniciarEscuchaRegistros();
   } else {
     usuarioUid = null;
