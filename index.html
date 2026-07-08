@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PROCORE | Lecciones Aprendidas</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#1a1a2e;color:#e0e0e0;font-family:Segoe UI,sans-serif;min-height:100vh}
@@ -23,9 +22,13 @@ body{background:#1a1a2e;color:#e0e0e0;font-family:Segoe UI,sans-serif;min-height
 .tabs{display:flex;gap:4px;border-bottom:1px solid #2a3f5a;margin-bottom:16px}
 .tab{padding:8px 16px;font-size:13px;cursor:pointer;border-radius:8px 8px 0 0;color:#8aa0b8;border:none;background:none;font-family:Segoe UI,sans-serif}
 .tab.active{background:#243347;color:#e0eaff;font-weight:600}
-.user-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#162130;border-radius:8px;margin-bottom:14px;font-size:12px;color:#8aa0b8;border:1px solid #2a3f5a}
-.user-bar input{flex:1;border:1px solid #3a5070;border-radius:6px;padding:5px 10px;font-size:12px;background:#1a2d42;color:#e0e0e0;font-family:Segoe UI,sans-serif}
+.user-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#162130;border-radius:8px;margin-bottom:14px;font-size:12px;color:#8aa0b8;border:1px solid #2a3f5a;flex-wrap:wrap}
+.user-bar input{flex:1;min-width:160px;border:1px solid #3a5070;border-radius:6px;padding:5px 10px;font-size:12px;background:#1a2d42;color:#e0e0e0;font-family:Segoe UI,sans-serif}
 .user-btn{padding:5px 14px;font-size:12px;background:#1976d2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:Segoe UI,sans-serif}
+.user-btn:disabled{opacity:.5;cursor:not-allowed}
+.conn-dot{width:8px;height:8px;border-radius:50%;background:#5a7a9a;display:inline-block}
+.conn-dot.ok{background:#97c459}
+.conn-dot.err{background:#f09595}
 .sec-label{font-size:11px;font-weight:700;color:#5a8ab8;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #243347}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .fg{display:flex;flex-direction:column;gap:4px}
@@ -49,6 +52,7 @@ td{padding:8px 10px;border-bottom:1px solid #1e2d3d;color:#c8d8e8}
 tr:last-child td{border-bottom:none}
 .btn-save{background:#1976d2;color:#fff;border:none;padding:9px 22px;border-radius:7px;cursor:pointer;font-size:13px;font-weight:600;font-family:Segoe UI,sans-serif}
 .btn-save:hover{background:#1565c0}
+.btn-save:disabled{opacity:.6;cursor:not-allowed}
 .btn-edit{background:#243347;color:#85b7eb;border:1px solid #2a3f5a;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-family:Segoe UI,sans-serif}
 .btn-edit:hover{background:#2e4060}
 .btn-del{background:#3d1a1a;color:#f09595;border:1px solid #5a2a2a;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-family:Segoe UI,sans-serif}
@@ -57,35 +61,33 @@ tr:last-child td{border-bottom:none}
 .filter-row select{padding:5px 8px;font-size:12px;border:1px solid #3a5070;border-radius:6px;background:#162130;color:#e0e0e0;font-family:Segoe UI,sans-serif}
 .empty{text-align:center;padding:30px;color:#4a6a8a;font-size:13px}
 .lock-notice{font-size:11px;color:#5a7a9a;display:flex;align-items:center;gap:5px}
-/* Multi-select departamentos */
 .dept-selector{border:1px solid #3a5070;border-radius:6px;background:#162130;padding:6px;max-height:130px;overflow-y:auto}
 .dept-option{display:flex;align-items:center;gap:7px;padding:3px 5px;cursor:pointer;border-radius:4px;font-size:12px;color:#c8d8e8}
 .dept-option:hover{background:#243347}
 .dept-option input[type=checkbox]{accent-color:#1976d2;width:13px;height:13px;cursor:pointer}
-/* Evidencia */
 .upload-area{border:1px dashed #3a5070;border-radius:6px;background:#162130;padding:14px;text-align:center;cursor:pointer;font-size:12px;color:#8aa0b8;transition:border-color .2s}
 .upload-area:hover{border-color:#1976d2;color:#85b7eb}
 .file-list{margin-top:8px;display:flex;flex-direction:column;gap:4px}
 .file-item{display:flex;align-items:center;gap:8px;padding:5px 8px;background:#243347;border-radius:5px;font-size:11px;color:#c8d8e8}
 .file-item span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .file-item button{background:none;border:none;color:#f09595;cursor:pointer;font-size:14px;line-height:1}
-/* TM info box */
 .tm-info{font-size:11px;color:#5a7a9a;margin-top:4px;padding:5px 8px;background:#162130;border-radius:5px;border-left:2px solid #1976d2}
-/* Edit modal overlay */
 .modal-overlay{display:none;position:fixed;inset:0;background:#000a;z-index:100;align-items:center;justify-content:center}
 .modal-overlay.open{display:flex}
 .modal{background:#1e2a3a;border:1px solid #2a3f5a;border-radius:12px;padding:22px;width:min(680px,95vw);max-height:90vh;overflow-y:auto}
 .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 .modal-title{font-size:15px;font-weight:600;color:#e0eaff}
 .modal-close{background:none;border:none;color:#8aa0b8;cursor:pointer;font-size:20px}
+.evid-link{color:#85b7eb;text-decoration:none;font-size:11px}
+.evid-link:hover{text-decoration:underline}
 </style>
 </head>
 <body>
- 
+
 <div class="header">&#9783; PROCORE &nbsp;|&nbsp; Lecciones Aprendidas</div>
- 
+
 <div class="container">
- 
+
 <!-- KPIs -->
 <div class="kpi-grid">
 <div class="kpi">
@@ -109,7 +111,7 @@ tr:last-child td{border-bottom:none}
 <div class="kpi-sub" id="kpi-abiertos">0 abiertos</div>
 </div>
 </div>
- 
+
 <!-- Gráficas -->
 <div class="charts-grid">
 <div class="chart-card"><div class="chart-title">Tiempo muerto por proyecto (h)</div><div class="canvas-wrap"><canvas id="g1"></canvas></div></div>
@@ -117,24 +119,26 @@ tr:last-child td{border-bottom:none}
 <div class="chart-card"><div class="chart-title">Turnos perdidos por tipo de falla (turno = 9 h)</div><div class="canvas-wrap"><canvas id="g3"></canvas></div></div>
 <div class="chart-card"><div class="chart-title">Tiempo promedio resolución por mes (días)</div><div class="canvas-wrap"><canvas id="g4"></canvas></div></div>
 </div>
- 
+
 <!-- Panel principal -->
 <div class="panel">
 <div class="tabs">
 <button class="tab active" onclick="showTab('registro')">Registrar hallazgo</button>
 <button class="tab" onclick="showTab('tabla')">Registros guardados</button>
 </div>
- 
+
   <!-- TAB REGISTRO -->
 <div id="tab-registro">
 <div class="user-bar">
+<span class="conn-dot" id="connDot"></span>
+<span id="connText">Conectando con la base de datos...</span>
 &#128100;
 <span>Registrador:</span>
 <input type="text" id="usuarioActual" placeholder="Tu nombre completo">
-<button class="user-btn" onclick="setUsuario()">Confirmar</button>
+<button class="user-btn" id="btnConfirmUser" onclick="setUsuario()" disabled>Confirmar</button>
 <span id="usuarioConfirmado" style="color:#97c459;font-weight:600"></span>
 </div>
- 
+
     <div class="sec-label">Información general</div>
 <div class="form-grid">
 <div class="fg"><label>Folio</label><input id="folio" readonly></div>
@@ -169,9 +173,9 @@ tr:last-child td{border-bottom:none}
 <div class="tm-info" id="tmInfo">Ingresa las horas de paro — se calcularán turnos y tiempo extra automáticamente.</div>
 </div>
 </div>
- 
+
     <div class="fg" style="margin-top:10px"><label>Descripción del hallazgo</label><textarea id="descripcion" rows="3" placeholder="Describe el hallazgo..."></textarea></div>
- 
+
     <!-- Evidencia -->
 <div style="margin-top:12px">
 <div class="fg"><label>Evidencia (imágenes, PDFs, documentos)</label>
@@ -182,9 +186,9 @@ tr:last-child td{border-bottom:none}
 <div class="file-list" id="fileList"></div>
 </div>
 </div>
- 
+
     <hr class="div">
- 
+
     <!-- Seguimiento -->
 <div class="form-grid">
 <div class="fg">
@@ -211,13 +215,13 @@ tr:last-child td{border-bottom:none}
 <div class="fg"><label>Fecha cierre</label><input type="date" id="fechaCierre"></div>
 </div>
 <div class="fg" style="margin-top:10px"><label>Acción correctiva</label><textarea id="accionCorrectiva" rows="3" placeholder="Describe la acción correctiva..."></textarea></div>
- 
+
     <div style="margin-top:14px;display:flex;align-items:center;gap:14px">
-<button class="btn-save" onclick="guardar()">Guardar registro</button>
-<div class="lock-notice">&#128274; Cada registrador solo puede editar sus propios registros</div>
+<button class="btn-save" id="btnGuardar" onclick="guardar()">Guardar registro</button>
+<div class="lock-notice">&#128274; Cada registrador solo puede editar o eliminar sus propios registros</div>
 </div>
 </div>
- 
+
   <!-- TAB TABLA -->
 <div id="tab-tabla" style="display:none">
 <div class="filter-row">
@@ -242,7 +246,7 @@ tr:last-child td{border-bottom:none}
 <thead>
 <tr>
 <th>Folio</th><th>Tipo</th><th>Proyecto</th><th>Deptos. responsables</th>
-<th>Tiempo muerto</th><th>Estatus</th><th>Días resolución</th><th>Registrador</th><th>Acción</th>
+<th>Tiempo muerto</th><th>Evidencia</th><th>Estatus</th><th>Días resolución</th><th>Registrador</th><th>Acción</th>
 </tr>
 </thead>
 <tbody id="tablaBody"></tbody>
@@ -251,9 +255,9 @@ tr:last-child td{border-bottom:none}
 </div>
 </div>
 </div>
- 
+
 </div><!-- /container -->
- 
+
 <!-- Modal edición -->
 <div class="modal-overlay" id="modalOverlay">
 <div class="modal">
@@ -293,17 +297,81 @@ tr:last-child td{border-bottom:none}
 </div>
 </div>
 </div>
- 
+
+<!-- Firebase (compat SDK) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
+// ── Configuración Firebase ──────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyDUtAxF2Qn5ZchFOiCKQlLW6BFW4tmuS-w",
+  authDomain: "value-and-learning-system.firebaseapp.com",
+  projectId: "value-and-learning-system",
+  storageBucket: "value-and-learning-system.firebasestorage.app",
+  messagingSenderId: "142547992041",
+  appId: "1:142547992041:web:3acf4f99cabcd4cadd5f78",
+  measurementId: "G-L4M4WQXF6F"
+};
+firebase.initializeApp(firebaseConfig);
+const db      = firebase.firestore();
+const storage = firebase.storage();
+const auth    = firebase.auth();
+
 const TURNO_H = 9; // horas por turno
-let consecutivo = 1;
 let registros = [];
 let usuarioActivo = '';
+let usuarioUid = null;
 let archivosTemp = [];
 let charts = {};
-let editIdx = null;
- 
+let editId = null;
+let unsubscribeRegistros = null;
+
+// ── Conexión / autenticación anónima ────────────────────────
+// NOTA: esta autenticación anónima es TEMPORAL, para poder controlar
+// permisos de edición/eliminación mientras el archivo no está dentro
+// de Procore. Cuando se integre como app de Procore, este bloque se
+// reemplaza por la identidad real que Procore entrega vía OAuth.
+function setConn(estado, texto){
+  const dot = document.getElementById('connDot');
+  dot.className = 'conn-dot' + (estado==='ok' ? ' ok' : estado==='err' ? ' err' : '');
+  document.getElementById('connText').textContent = texto;
+}
+
+auth.signInAnonymously().catch(err=>{
+  console.error(err);
+  setConn('err', 'No se pudo conectar con la base de datos.');
+});
+
+auth.onAuthStateChanged(user=>{
+  if(user){
+    usuarioUid = user.uid;
+    setConn('ok', 'Conectado');
+    document.getElementById('btnConfirmUser').disabled = false;
+    iniciarEscuchaRegistros();
+  } else {
+    usuarioUid = null;
+    setConn('', 'Desconectado');
+  }
+});
+
+function iniciarEscuchaRegistros(){
+  if(unsubscribeRegistros) unsubscribeRegistros();
+  unsubscribeRegistros = db.collection('registros')
+    .orderBy('fechaRegistroTS', 'desc')
+    .onSnapshot(snap=>{
+      registros = snap.docs.map(doc=>({ id: doc.id, ...doc.data() }));
+      renderTabla();
+      actualizarKPIs();
+      actualizarCharts();
+    }, err=>{
+      console.error(err);
+      setConn('err', 'Error leyendo registros (revisa reglas de Firestore).');
+    });
+}
+
 // ── Usuario ──────────────────────────────────────────────
 function setUsuario(){
   const v = document.getElementById('usuarioActual').value.trim();
@@ -311,14 +379,35 @@ function setUsuario(){
   usuarioActivo = v;
   document.getElementById('usuarioConfirmado').textContent = '✓ ' + v;
 }
- 
-// ── Folio ─────────────────────────────────────────────────
-function actualizarFolio(){
+
+// ── Folio (vista previa; el número real se asigna al guardar) ──
+async function actualizarFolio(){
   const tipo = document.getElementById('tipo').value;
   const year = new Date().getFullYear();
-  document.getElementById('folio').value = year + '-' + tipo + '-' + String(consecutivo).padStart(5,'0');
+  const folioEl = document.getElementById('folio');
+  try{
+    const snap = await db.collection('meta').doc('contadores').get();
+    const data = snap.exists ? snap.data() : {};
+    const siguiente = (data[tipo]||0) + 1;
+    folioEl.value = `${year}-${tipo}-${String(siguiente).padStart(5,'0')}`;
+  }catch(e){
+    folioEl.value = 'Se generará al guardar';
+  }
 }
- 
+
+async function getSiguienteFolio(tipo){
+  const year = new Date().getFullYear();
+  const ref = db.collection('meta').doc('contadores');
+  const nuevo = await db.runTransaction(async t=>{
+    const snap = await t.get(ref);
+    const data = snap.exists ? snap.data() : {};
+    const actual = (data[tipo]||0) + 1;
+    t.set(ref, { ...data, [tipo]: actual }, { merge: true });
+    return actual;
+  });
+  return `${year}-${tipo}-${String(nuevo).padStart(5,'0')}`;
+}
+
 // ── TM info en tiempo real ────────────────────────────────
 function actualizarTMInfo(){
   const h = parseFloat(document.getElementById('horasTM').value)||0;
@@ -336,7 +425,7 @@ function actualizarTMInfo(){
   }
   document.getElementById('tmInfo').textContent = msg;
 }
- 
+
 // ── Archivos ──────────────────────────────────────────────
 function agregarArchivos(files){
   for(const f of files){
@@ -346,12 +435,12 @@ function agregarArchivos(files){
   }
   renderFileList();
 }
- 
+
 function quitarArchivo(idx){
   archivosTemp.splice(idx,1);
   renderFileList();
 }
- 
+
 function renderFileList(){
   document.getElementById('fileList').innerHTML = archivosTemp.map((f,i)=>{
     const icon = f.type.startsWith('image/') ? '🖼️' : f.name.endsWith('.pdf') ? '📄' : '📎';
@@ -359,24 +448,23 @@ function renderFileList(){
     return `<div class="file-item">${icon}<span>${f.name}</span><span style="color:#5a7a9a;white-space:nowrap">${kb} KB</span><button onclick="quitarArchivo(${i})" title="Quitar">&#x2715;</button></div>`;
   }).join('');
 }
- 
+
 // Drag & drop
 const uploadArea = document.querySelector('.upload-area');
 uploadArea.addEventListener('dragover', e=>{ e.preventDefault(); uploadArea.style.borderColor='#1976d2'; });
 uploadArea.addEventListener('dragleave', ()=>{ uploadArea.style.borderColor='#3a5070'; });
 uploadArea.addEventListener('drop', e=>{ e.preventDefault(); uploadArea.style.borderColor='#3a5070'; agregarArchivos(e.dataTransfer.files); });
- 
-// ── Leer checkboxes deptos ────────────────────────────────
+
+// ── Leer / fijar checkboxes deptos ────────────────────────
 function leerDeptos(containerId){
   return Array.from(document.querySelectorAll(`#${containerId} input[type=checkbox]:checked`)).map(c=>c.value);
 }
- 
 function setDeptos(containerId, arr){
   document.querySelectorAll(`#${containerId} input[type=checkbox]`).forEach(c=>{
-    c.checked = arr.includes(c.value);
+    c.checked = (arr||[]).includes(c.value);
   });
 }
- 
+
 // ── Tabs ──────────────────────────────────────────────────
 function showTab(t){
   document.getElementById('tab-registro').style.display = t==='registro' ? 'block' : 'none';
@@ -386,75 +474,98 @@ function showTab(t){
   });
   if(t==='tabla') renderTabla();
 }
- 
+
 // ── Helpers tiempo ────────────────────────────────────────
 function diasEntre(d1, d2){
   if(!d1||!d2) return null;
   const a = new Date(d1), b = new Date(d2);
   return Math.max(0, Math.round((b-a)/(1000*60*60*24)));
 }
- 
 function tmDesglose(horas){
   const turnos = Math.floor(horas / TURNO_H);
   const extra  = +(horas % TURNO_H).toFixed(1);
   return { turnos, extra };
 }
- 
+
 // ── Guardar nuevo registro ────────────────────────────────
-function guardar(){
+async function guardar(){
   if(!usuarioActivo){ alert('Confirma tu nombre antes de guardar.'); return; }
-  const fechaCierre = document.getElementById('fechaCierre').value;
-  const fechaHoy    = new Date().toISOString().split('T')[0];
-  const horas       = parseFloat(document.getElementById('horasTM').value)||0;
- 
-  registros.push({
-    folio:            document.getElementById('folio').value,
-    tipo:             document.getElementById('tipo').value,
-    numero:           document.getElementById('numeroProyecto').value.trim(),
-    proyecto:         (document.getElementById('numeroProyecto').value.trim()||'') +
-                      (document.getElementById('nombreProyecto').value.trim() ? ' - '+document.getElementById('nombreProyecto').value.trim() : ''),
-    fase:             document.getElementById('fase').value,
-    horasTM:          horas,
-    descripcion:      document.getElementById('descripcion').value,
-    deptos:           leerDeptos('deptSelector'),
-    estatus:          document.getElementById('estatus').value,
-    fechaImpl:        document.getElementById('fechaImpl').value,
-    fechaCierre:      fechaCierre,
-    accionCorrectiva: document.getElementById('accionCorrectiva').value,
-    archivos:         archivosTemp.map(f=>f.name),
-    registrador:      usuarioActivo,
-    fechaRegistro:    fechaHoy,
-    diasResolucion:   diasEntre(fechaHoy, fechaCierre)
-  });
- 
-  consecutivo++;
-  actualizarFolio();
- 
-  ['numeroProyecto','nombreProyecto','descripcion','accionCorrectiva'].forEach(id=>{
-    document.getElementById(id).value = '';
-  });
-  document.getElementById('horasTM').value = '0';
-  actualizarTMInfo();
-  document.getElementById('estatus').value = 'Abierto';
-  document.getElementById('fechaImpl').value = '';
-  document.getElementById('fechaCierre').value = '';
-  document.querySelectorAll('#deptSelector input[type=checkbox]').forEach(c=>c.checked=false);
-  archivosTemp = [];
-  renderFileList();
- 
-  actualizarKPIs();
-  actualizarCharts();
-  alert('Registro guardado correctamente.');
+  if(!usuarioUid){ alert('Todavía no hay conexión con la base de datos, espera un momento e intenta de nuevo.'); return; }
+
+  const btn = document.getElementById('btnGuardar');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+
+  try{
+    const tipo        = document.getElementById('tipo').value;
+    const folio       = await getSiguienteFolio(tipo);
+    const fechaCierre = document.getElementById('fechaCierre').value;
+    const fechaHoy    = new Date().toISOString().split('T')[0];
+    const horas       = parseFloat(document.getElementById('horasTM').value)||0;
+
+    // Subir evidencia a Storage
+    const archivosSubidos = [];
+    for(const f of archivosTemp){
+      const path = `evidencia/${folio}/${Date.now()}_${f.name}`;
+      const ref  = storage.ref(path);
+      await ref.put(f);
+      const url  = await ref.getDownloadURL();
+      archivosSubidos.push({ name: f.name, url, path });
+    }
+
+    await db.collection('registros').add({
+      folio,
+      tipo,
+      numero:           document.getElementById('numeroProyecto').value.trim(),
+      proyecto:         (document.getElementById('numeroProyecto').value.trim()||'') +
+                        (document.getElementById('nombreProyecto').value.trim() ? ' - '+document.getElementById('nombreProyecto').value.trim() : ''),
+      fase:             document.getElementById('fase').value,
+      horasTM:          horas,
+      descripcion:      document.getElementById('descripcion').value,
+      deptos:           leerDeptos('deptSelector'),
+      estatus:          document.getElementById('estatus').value,
+      fechaImpl:        document.getElementById('fechaImpl').value,
+      fechaCierre:      fechaCierre,
+      accionCorrectiva: document.getElementById('accionCorrectiva').value,
+      archivos:         archivosSubidos,
+      registrador:      usuarioActivo,
+      registradorUid:   usuarioUid,
+      fechaRegistro:    fechaHoy,
+      fechaRegistroTS:  firebase.firestore.FieldValue.serverTimestamp(),
+      diasResolucion:   diasEntre(fechaHoy, fechaCierre)
+    });
+
+    // limpiar formulario
+    actualizarFolio();
+    ['numeroProyecto','nombreProyecto','descripcion','accionCorrectiva'].forEach(id=>{
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('horasTM').value = '0';
+    actualizarTMInfo();
+    document.getElementById('estatus').value = 'Abierto';
+    document.getElementById('fechaImpl').value = '';
+    document.getElementById('fechaCierre').value = '';
+    document.querySelectorAll('#deptSelector input[type=checkbox]').forEach(c=>c.checked=false);
+    archivosTemp = [];
+    renderFileList();
+
+    alert('Registro guardado correctamente.');
+  }catch(e){
+    console.error(e);
+    alert('Ocurrió un error al guardar: ' + e.message);
+  }finally{
+    btn.disabled = false; btn.textContent = 'Guardar registro';
+  }
 }
- 
+
 // ── Modal edición ─────────────────────────────────────────
-function abrirEdicion(idx){
-  const r = registros[idx];
-  if(r.registrador !== usuarioActivo){
+function abrirEdicion(id){
+  const r = registros.find(x=>x.id===id);
+  if(!r) return;
+  if(r.registradorUid !== usuarioUid){
     alert('Solo ' + r.registrador + ' puede editar este registro.');
     return;
   }
-  editIdx = idx;
+  editId = id;
   document.getElementById('modalTitle').textContent = 'Editar ' + r.folio;
   document.getElementById('m-estatus').value = r.estatus;
   document.getElementById('m-fechaImpl').value = r.fechaImpl||'';
@@ -464,106 +575,128 @@ function abrirEdicion(idx){
   setDeptos('m-deptSelector', r.deptos||[]);
   document.getElementById('modalOverlay').classList.add('open');
 }
- 
+
 function cerrarModal(){
   document.getElementById('modalOverlay').classList.remove('open');
-  editIdx = null;
+  editId = null;
 }
- 
-function guardarEdicion(){
-  if(editIdx === null) return;
-  const r = registros[editIdx];
+
+async function guardarEdicion(){
+  if(editId === null) return;
+  const r = registros.find(x=>x.id===editId);
+  if(!r) return;
+  if(r.registradorUid !== usuarioUid){
+    alert('Solo ' + r.registrador + ' puede editar este registro.');
+    cerrarModal();
+    return;
+  }
   const fechaCierre = document.getElementById('m-fechaCierre').value;
-  r.estatus          = document.getElementById('m-estatus').value;
-  r.fechaImpl        = document.getElementById('m-fechaImpl').value;
-  r.fechaCierre      = fechaCierre;
-  r.accionCorrectiva = document.getElementById('m-accionCorrectiva').value;
-  r.descripcion      = document.getElementById('m-descripcion').value;
-  r.deptos           = leerDeptos('m-deptSelector');
-  r.diasResolucion   = diasEntre(r.fechaRegistro, fechaCierre);
-  cerrarModal();
-  renderTabla();
-  actualizarKPIs();
-  actualizarCharts();
+  try{
+    await db.collection('registros').doc(editId).update({
+      estatus:          document.getElementById('m-estatus').value,
+      fechaImpl:        document.getElementById('m-fechaImpl').value,
+      fechaCierre:      fechaCierre,
+      accionCorrectiva: document.getElementById('m-accionCorrectiva').value,
+      descripcion:      document.getElementById('m-descripcion').value,
+      deptos:           leerDeptos('m-deptSelector'),
+      diasResolucion:   diasEntre(r.fechaRegistro, fechaCierre)
+    });
+    cerrarModal();
+  }catch(e){
+    console.error(e);
+    alert('Error al guardar los cambios: ' + e.message);
+  }
 }
- 
+
+// ── Eliminar registro ─────────────────────────────────────
+async function eliminarRegistro(id){
+  const r = registros.find(x=>x.id===id);
+  if(!r) return;
+  if(r.registradorUid !== usuarioUid){
+    alert('Solo ' + r.registrador + ' puede eliminar este registro.');
+    return;
+  }
+  if(!confirm(`¿Eliminar el registro ${r.folio}?\nEsta acción no se puede deshacer.`)) return;
+  try{
+    // borra también la evidencia asociada en Storage
+    for(const a of (r.archivos||[])){
+      if(a.path){
+        try{ await storage.ref(a.path).delete(); }catch(e){ console.warn('No se pudo borrar', a.path, e); }
+      }
+    }
+    await db.collection('registros').doc(id).delete();
+  }catch(e){
+    console.error(e);
+    alert('Error al eliminar: ' + e.message);
+  }
+}
+
 // ── Tabla ─────────────────────────────────────────────────
 function renderTabla(){
   const filtroT = document.getElementById('filtroTipo').value;
   const filtroE = document.getElementById('filtroEstatus').value;
-  const filtrados = registros.map((r,i)=>({...r,_idx:i}))
-    .filter(r=>(!filtroT||r.tipo===filtroT)&&(!filtroE||r.estatus===filtroE));
+  const filtrados = registros.filter(r=>(!filtroT||r.tipo===filtroT)&&(!filtroE||r.estatus===filtroE));
   document.getElementById('emptyState').style.display = filtrados.length ? 'none' : 'block';
   document.getElementById('tablaBody').innerHTML = filtrados.map(r=>{
     const stCls = r.estatus==='Abierto'?'st-abierto':r.estatus==='En Proceso'?'st-proceso':'st-cerrado';
     const depList = (r.deptos||[]).join(', ')||'—';
-    const {turnos,extra} = tmDesglose(r.horasTM);
+    const {turnos,extra} = tmDesglose(r.horasTM||0);
     const tmStr = turnos>0 ? `${r.horasTM}h (${turnos}T${extra>0?'+'+extra+'h':''})` : `${r.horasTM}h (extra)`;
-    const puedEdit = r.registrador === usuarioActivo;
+    const puedEdit = r.registradorUid === usuarioUid;
     const acciones = puedEdit
-      ? `<div style="display:flex;gap:5px"><button class="btn-edit" onclick="abrirEdicion(${r._idx})">Editar</button><button class="btn-del" onclick="eliminarRegistro(${r._idx})" title="Eliminar registro">&#x2715; Eliminar</button></div>`
+      ? `<div style="display:flex;gap:5px"><button class="btn-edit" onclick="abrirEdicion('${r.id}')">Editar</button><button class="btn-del" onclick="eliminarRegistro('${r.id}')" title="Eliminar registro">&#x2715; Eliminar</button></div>`
       : '<span style="font-size:11px;color:#4a6a8a">—</span>';
+    const evid = (r.archivos&&r.archivos.length)
+      ? r.archivos.map(a=>`<a class="evid-link" href="${a.url}" target="_blank" rel="noopener">📎 ${a.name}</a>`).join('<br>')
+      : '<span style="color:#4a6a8a">—</span>';
     return `<tr>
 <td style="font-family:monospace;font-size:11px">${r.folio}</td>
 <td><span class="badge badge-${r.tipo}">${r.tipo}</span></td>
 <td>${r.proyecto||'—'}</td>
 <td style="font-size:11px">${depList}</td>
 <td style="white-space:nowrap">${tmStr}</td>
+<td style="font-size:11px">${evid}</td>
 <td><span class="badge ${stCls}">${r.estatus}</span></td>
-<td>${r.diasResolucion!==null ? r.diasResolucion+' d' : '—'}</td>
+<td>${r.diasResolucion!==null&&r.diasResolucion!==undefined ? r.diasResolucion+' d' : '—'}</td>
 <td style="font-size:11px;color:#8aa0b8">${r.registrador}</td>
 <td>${acciones}</td>
 </tr>`;
   }).join('');
 }
- 
-// ── Eliminar registro ─────────────────────────────────────
-function eliminarRegistro(idx){
-  const r = registros[idx];
-  if(r.registrador !== usuarioActivo){
-    alert('Solo ' + r.registrador + ' puede eliminar este registro.');
-    return;
-  }
-  if(!confirm(`¿Eliminar el registro ${r.folio}?\nEsta acción no se puede deshacer.`)) return;
-  registros.splice(idx, 1);
-  renderTabla();
-  actualizarKPIs();
-  actualizarCharts();
-}
- 
+
 // ── KPIs ──────────────────────────────────────────────────
 function actualizarKPIs(){
   const total       = registros.length;
-  const totalHoras  = registros.reduce((s,r)=>s+r.horasTM, 0);
+  const totalHoras  = registros.reduce((s,r)=>s+(r.horasTM||0), 0);
   const {turnos:tT, extra:eT} = tmDesglose(totalHoras);
- 
-  const horasFallas = registros.filter(r=>r.tipo==='FA'||r.tipo==='RT').reduce((s,r)=>s+r.horasTM, 0);
+
+  const horasFallas = registros.filter(r=>r.tipo==='FA'||r.tipo==='RT').reduce((s,r)=>s+(r.horasTM||0), 0);
   const {turnos:tF, extra:eF} = tmDesglose(horasFallas);
- 
-  const cerrados = registros.filter(r=>r.estatus==='Cerrado'&&r.diasResolucion!==null);
+
+  const cerrados = registros.filter(r=>r.estatus==='Cerrado'&&r.diasResolucion!==null&&r.diasResolucion!==undefined);
   const promDias = cerrados.length ? Math.round(cerrados.reduce((s,r)=>s+r.diasResolucion,0)/cerrados.length) : null;
   const abiertos = registros.filter(r=>r.estatus==='Abierto').length;
- 
+
   document.getElementById('kpi-horas').textContent = totalHoras + ' h';
   document.getElementById('kpi-horas-sub').textContent = `${tT} turno${tT!==1?'s':''} completo${tT!==1?'s':''} + ${eT} h extra`;
- 
+
   const diasFallas = +(horasFallas / TURNO_H).toFixed(1);
   document.getElementById('kpi-dias').textContent = diasFallas + ' d';
   document.getElementById('kpi-dias-sub').textContent = `${tF} turno${tF!==1?'s':''} completo${tF!==1?'s':''} + ${eF} h extra`;
- 
+
   document.getElementById('kpi-prom').textContent = promDias!==null ? promDias+' d' : '— d';
   document.getElementById('kpi-total').textContent = total;
   document.getElementById('kpi-abiertos').textContent = abiertos + ' abiertos';
 }
- 
+
 // ── Charts ────────────────────────────────────────────────
 function actualizarCharts(){
   const tick = { color:'#8aa0b8', font:{size:10} };
   const grid = '#243347';
- 
+
   // G1 Horas TM por proyecto
   const proyMap = {};
-  registros.forEach(r=>{ const k=r.numero||'Sin proyecto'; proyMap[k]=(proyMap[k]||0)+r.horasTM; });
+  registros.forEach(r=>{ const k=r.numero||'Sin proyecto'; proyMap[k]=(proyMap[k]||0)+(r.horasTM||0); });
   const g1L=Object.keys(proyMap), g1D=Object.values(proyMap);
   if(charts.g1) charts.g1.destroy();
   charts.g1 = new Chart(document.getElementById('g1'),{
@@ -571,7 +704,7 @@ function actualizarCharts(){
     data:{labels:g1L.length?g1L:['Sin datos'],datasets:[{label:'Horas',data:g1L.length?g1D:[0],backgroundColor:'#1976d299',borderColor:'#1976d2',borderWidth:1}]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:tick,grid:{color:grid}},y:{beginAtZero:true,ticks:tick,grid:{color:grid}}}}
   });
- 
+
   // G2 Por tipo
   const tipos=['FA','LA','BP','RT','OB'];
   const conteos=tipos.map(t=>registros.filter(r=>r.tipo===t).length);
@@ -581,10 +714,10 @@ function actualizarCharts(){
     data:{labels:tipos,datasets:[{data:conteos,backgroundColor:['#E24B4A','#378ADD','#639922','#EF9F27','#7F77DD'],borderWidth:1,borderColor:'#1e2a3a'}]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#8aa0b8',font:{size:10},boxWidth:10}}}}
   });
- 
+
   // G3 Turnos perdidos FA / RT (horas/9)
   const turnosPorTipo = ['FA','RT'].map(t=>
-    +(registros.filter(r=>r.tipo===t).reduce((s,r)=>s+r.horasTM,0)/TURNO_H).toFixed(2)
+    +(registros.filter(r=>r.tipo===t).reduce((s,r)=>s+(r.horasTM||0),0)/TURNO_H).toFixed(2)
   );
   if(charts.g3) charts.g3.destroy();
   charts.g3 = new Chart(document.getElementById('g3'),{
@@ -592,10 +725,10 @@ function actualizarCharts(){
     data:{labels:['Falla (FA)','Retrabajo (RT)'],datasets:[{label:'Turnos',data:turnosPorTipo,backgroundColor:['#E24B4A99','#EF9F2799'],borderColor:['#E24B4A','#EF9F27'],borderWidth:1}]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:tick,grid:{color:grid}},y:{beginAtZero:true,ticks:{...tick,callback:v=>v+' T'},grid:{color:grid}}}}
   });
- 
+
   // G4 Prom resolución por mes
   const mesMap={};
-  registros.filter(r=>r.diasResolucion!==null&&r.fechaCierre).forEach(r=>{
+  registros.filter(r=>r.diasResolucion!==null&&r.diasResolucion!==undefined&&r.fechaCierre).forEach(r=>{
     const mes=r.fechaCierre.substring(0,7);
     if(!mesMap[mes]) mesMap[mes]={sum:0,cnt:0};
     mesMap[mes].sum+=r.diasResolucion; mesMap[mes].cnt++;
@@ -609,7 +742,7 @@ function actualizarCharts(){
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:tick,grid:{color:grid}},y:{beginAtZero:true,ticks:tick,grid:{color:grid}}}}
   });
 }
- 
+
 // ── Init ──────────────────────────────────────────────────
 document.getElementById('fechaRegistro').value = new Date().toLocaleDateString('es-MX');
 actualizarFolio();
