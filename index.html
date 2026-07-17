@@ -485,6 +485,40 @@ function tmDesglose(horas){
   return { turnos, extra };
 }
 
+// ── Subida a Storage con progreso y timeout ────────────────
+function subirConProgreso(ref, file, btn){
+  return new Promise((resolve, reject)=>{
+    const task = ref.put(file);
+    let huboProgreso = false;
+
+    const timeout = setTimeout(()=>{
+      if(!huboProgreso){
+        task.cancel();
+        reject(new Error('La subida de "' + file.name + '" no avanzó en 25s. Probablemente tu red (firewall/wifi corporativo) está bloqueando la conexión hacia Firebase Storage. Prueba con datos móviles o desde otra red.'));
+      }
+    }, 25000);
+
+    task.on('state_changed',
+      snapshot=>{
+        huboProgreso = true;
+        const pct = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+        btn.textContent = `Subiendo ${file.name} (${pct}%)...`;
+      },
+      err=>{
+        clearTimeout(timeout);
+        reject(err);
+      },
+      async ()=>{
+        clearTimeout(timeout);
+        try{
+          const url = await ref.getDownloadURL();
+          resolve(url);
+        }catch(e){ reject(e); }
+      }
+    );
+  });
+}
+
 // ── Guardar nuevo registro ────────────────────────────────
 async function guardar(){
   if(!usuarioActivo){ alert('Confirma tu nombre antes de guardar.'); return; }
@@ -500,13 +534,12 @@ async function guardar(){
     const fechaHoy    = new Date().toISOString().split('T')[0];
     const horas       = parseFloat(document.getElementById('horasTM').value)||0;
 
-    // Subir evidencia a Storage
+    // Subir evidencia a Storage (con progreso y límite de tiempo de 25s por archivo)
     const archivosSubidos = [];
     for(const f of archivosTemp){
       const path = `evidencia/${folio}/${Date.now()}_${f.name}`;
       const ref  = storage.ref(path);
-      await ref.put(f);
-      const url  = await ref.getDownloadURL();
+      const url  = await subirConProgreso(ref, f, btn);
       archivosSubidos.push({ name: f.name, url, path });
     }
 
