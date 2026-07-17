@@ -65,12 +65,6 @@ tr:last-child td{border-bottom:none}
 .dept-option{display:flex;align-items:center;gap:7px;padding:3px 5px;cursor:pointer;border-radius:4px;font-size:12px;color:#c8d8e8}
 .dept-option:hover{background:#243347}
 .dept-option input[type=checkbox]{accent-color:#1976d2;width:13px;height:13px;cursor:pointer}
-.upload-area{border:1px dashed #3a5070;border-radius:6px;background:#162130;padding:14px;text-align:center;cursor:pointer;font-size:12px;color:#8aa0b8;transition:border-color .2s}
-.upload-area:hover{border-color:#1976d2;color:#85b7eb}
-.file-list{margin-top:8px;display:flex;flex-direction:column;gap:4px}
-.file-item{display:flex;align-items:center;gap:8px;padding:5px 8px;background:#243347;border-radius:5px;font-size:11px;color:#c8d8e8}
-.file-item span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.file-item button{background:none;border:none;color:#f09595;cursor:pointer;font-size:14px;line-height:1}
 .tm-info{font-size:11px;color:#5a7a9a;margin-top:4px;padding:5px 8px;background:#162130;border-radius:5px;border-left:2px solid #1976d2}
 .modal-overlay{display:none;position:fixed;inset:0;background:#000a;z-index:100;align-items:center;justify-content:center}
 .modal-overlay.open{display:flex}
@@ -78,8 +72,6 @@ tr:last-child td{border-bottom:none}
 .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 .modal-title{font-size:15px;font-weight:600;color:#e0eaff}
 .modal-close{background:none;border:none;color:#8aa0b8;cursor:pointer;font-size:20px}
-.evid-link{color:#85b7eb;text-decoration:none;font-size:11px}
-.evid-link:hover{text-decoration:underline}
 </style>
 </head>
 <body>
@@ -176,14 +168,12 @@ tr:last-child td{border-bottom:none}
 
     <div class="fg" style="margin-top:10px"><label>Descripción del hallazgo</label><textarea id="descripcion" rows="3" placeholder="Describe el hallazgo..."></textarea></div>
 
-    <!-- Evidencia -->
+    <!-- Evidencia (pendiente: requiere plan Blaze en Firebase Storage) -->
 <div style="margin-top:12px">
 <div class="fg"><label>Evidencia (imágenes, PDFs, documentos)</label>
-<div class="upload-area" onclick="document.getElementById('fileInput').click()">
-&#128206; Haz clic para adjuntar archivos o arrástralos aquí
+<div style="border:1px dashed #3a5070;border-radius:6px;background:#162130;padding:14px;text-align:center;font-size:12px;color:#5a7a9a">
+📎 Próximamente — adjuntar evidencia estará disponible en una actualización futura.
 </div>
-<input type="file" id="fileInput" multiple accept="image/*,.pdf,.doc,.docx,.xlsx,.xls" style="display:none" onchange="agregarArchivos(this.files)">
-<div class="file-list" id="fileList"></div>
 </div>
 </div>
 
@@ -246,7 +236,7 @@ tr:last-child td{border-bottom:none}
 <thead>
 <tr>
 <th>Folio</th><th>Tipo</th><th>Proyecto</th><th>Deptos. responsables</th>
-<th>Tiempo muerto</th><th>Evidencia</th><th>Estatus</th><th>Días resolución</th><th>Registrador</th><th>Acción</th>
+<th>Tiempo muerto</th><th>Estatus</th><th>Días resolución</th><th>Registrador</th><th>Acción</th>
 </tr>
 </thead>
 <tbody id="tablaBody"></tbody>
@@ -302,7 +292,6 @@ tr:last-child td{border-bottom:none}
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
 // ── Configuración Firebase ──────────────────────────────────
@@ -316,14 +305,12 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db      = firebase.firestore();
-const storage = firebase.storage();
 const auth    = firebase.auth();
 
 const TURNO_H = 9; // horas por turno
 let registros = [];
 let usuarioActivo = '';
 let usuarioUid = null;
-let archivosTemp = [];
 let charts = {};
 let editId = null;
 let unsubscribeRegistros = null;
@@ -424,35 +411,6 @@ function actualizarTMInfo(){
   document.getElementById('tmInfo').textContent = msg;
 }
 
-// ── Archivos ──────────────────────────────────────────────
-function agregarArchivos(files){
-  for(const f of files){
-    if(!archivosTemp.find(a=>a.name===f.name&&a.size===f.size)){
-      archivosTemp.push(f);
-    }
-  }
-  renderFileList();
-}
-
-function quitarArchivo(idx){
-  archivosTemp.splice(idx,1);
-  renderFileList();
-}
-
-function renderFileList(){
-  document.getElementById('fileList').innerHTML = archivosTemp.map((f,i)=>{
-    const icon = f.type.startsWith('image/') ? '🖼️' : f.name.endsWith('.pdf') ? '📄' : '📎';
-    const kb = (f.size/1024).toFixed(1);
-    return `<div class="file-item">${icon}<span>${f.name}</span><span style="color:#5a7a9a;white-space:nowrap">${kb} KB</span><button onclick="quitarArchivo(${i})" title="Quitar">&#x2715;</button></div>`;
-  }).join('');
-}
-
-// Drag & drop
-const uploadArea = document.querySelector('.upload-area');
-uploadArea.addEventListener('dragover', e=>{ e.preventDefault(); uploadArea.style.borderColor='#1976d2'; });
-uploadArea.addEventListener('dragleave', ()=>{ uploadArea.style.borderColor='#3a5070'; });
-uploadArea.addEventListener('drop', e=>{ e.preventDefault(); uploadArea.style.borderColor='#3a5070'; agregarArchivos(e.dataTransfer.files); });
-
 // ── Leer / fijar checkboxes deptos ────────────────────────
 function leerDeptos(containerId){
   return Array.from(document.querySelectorAll(`#${containerId} input[type=checkbox]:checked`)).map(c=>c.value);
@@ -485,40 +443,6 @@ function tmDesglose(horas){
   return { turnos, extra };
 }
 
-// ── Subida a Storage con progreso y timeout ────────────────
-function subirConProgreso(ref, file, btn){
-  return new Promise((resolve, reject)=>{
-    const task = ref.put(file);
-    let huboProgreso = false;
-
-    const timeout = setTimeout(()=>{
-      if(!huboProgreso){
-        task.cancel();
-        reject(new Error('La subida de "' + file.name + '" no avanzó en 25s. Probablemente tu red (firewall/wifi corporativo) está bloqueando la conexión hacia Firebase Storage. Prueba con datos móviles o desde otra red.'));
-      }
-    }, 25000);
-
-    task.on('state_changed',
-      snapshot=>{
-        huboProgreso = true;
-        const pct = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-        btn.textContent = `Subiendo ${file.name} (${pct}%)...`;
-      },
-      err=>{
-        clearTimeout(timeout);
-        reject(err);
-      },
-      async ()=>{
-        clearTimeout(timeout);
-        try{
-          const url = await ref.getDownloadURL();
-          resolve(url);
-        }catch(e){ reject(e); }
-      }
-    );
-  });
-}
-
 // ── Guardar nuevo registro ────────────────────────────────
 async function guardar(){
   if(!usuarioActivo){ alert('Confirma tu nombre antes de guardar.'); return; }
@@ -534,15 +458,6 @@ async function guardar(){
     const fechaHoy    = new Date().toISOString().split('T')[0];
     const horas       = parseFloat(document.getElementById('horasTM').value)||0;
 
-    // Subir evidencia a Storage (con progreso y límite de tiempo de 25s por archivo)
-    const archivosSubidos = [];
-    for(const f of archivosTemp){
-      const path = `evidencia/${folio}/${Date.now()}_${f.name}`;
-      const ref  = storage.ref(path);
-      const url  = await subirConProgreso(ref, f, btn);
-      archivosSubidos.push({ name: f.name, url, path });
-    }
-
     await db.collection('registros').add({
       folio,
       tipo,
@@ -557,7 +472,6 @@ async function guardar(){
       fechaImpl:        document.getElementById('fechaImpl').value,
       fechaCierre:      fechaCierre,
       accionCorrectiva: document.getElementById('accionCorrectiva').value,
-      archivos:         archivosSubidos,
       registrador:      usuarioActivo,
       registradorUid:   usuarioUid,
       fechaRegistro:    fechaHoy,
@@ -576,8 +490,6 @@ async function guardar(){
     document.getElementById('fechaImpl').value = '';
     document.getElementById('fechaCierre').value = '';
     document.querySelectorAll('#deptSelector input[type=checkbox]').forEach(c=>c.checked=false);
-    archivosTemp = [];
-    renderFileList();
 
     alert('Registro guardado correctamente.');
   }catch(e){
@@ -649,12 +561,6 @@ async function eliminarRegistro(id){
   }
   if(!confirm(`¿Eliminar el registro ${r.folio}?\nEsta acción no se puede deshacer.`)) return;
   try{
-    // borra también la evidencia asociada en Storage
-    for(const a of (r.archivos||[])){
-      if(a.path){
-        try{ await storage.ref(a.path).delete(); }catch(e){ console.warn('No se pudo borrar', a.path, e); }
-      }
-    }
     await db.collection('registros').doc(id).delete();
   }catch(e){
     console.error(e);
@@ -677,16 +583,12 @@ function renderTabla(){
     const acciones = puedEdit
       ? `<div style="display:flex;gap:5px"><button class="btn-edit" onclick="abrirEdicion('${r.id}')">Editar</button><button class="btn-del" onclick="eliminarRegistro('${r.id}')" title="Eliminar registro">&#x2715; Eliminar</button></div>`
       : '<span style="font-size:11px;color:#4a6a8a">—</span>';
-    const evid = (r.archivos&&r.archivos.length)
-      ? r.archivos.map(a=>`<a class="evid-link" href="${a.url}" target="_blank" rel="noopener">📎 ${a.name}</a>`).join('<br>')
-      : '<span style="color:#4a6a8a">—</span>';
     return `<tr>
 <td style="font-family:monospace;font-size:11px">${r.folio}</td>
 <td><span class="badge badge-${r.tipo}">${r.tipo}</span></td>
 <td>${r.proyecto||'—'}</td>
 <td style="font-size:11px">${depList}</td>
 <td style="white-space:nowrap">${tmStr}</td>
-<td style="font-size:11px">${evid}</td>
 <td><span class="badge ${stCls}">${r.estatus}</span></td>
 <td>${r.diasResolucion!==null&&r.diasResolucion!==undefined ? r.diasResolucion+' d' : '—'}</td>
 <td style="font-size:11px;color:#8aa0b8">${r.registrador}</td>
