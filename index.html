@@ -131,6 +131,18 @@ tr:last-child td{border-bottom:none}
 <span id="usuarioConfirmado" style="color:#97c459;font-weight:600"></span>
 </div>
 
+<div class="user-bar" style="justify-content:space-between">
+<div style="display:flex;align-items:center;gap:8px">
+&#128273;
+<span id="encargadoTexto" style="color:#8aa0b8">Modo encargado: no activo</span>
+</div>
+<div style="display:flex;gap:6px;align-items:center" id="encargadoBox">
+<input type="email" id="encEmail" placeholder="Correo de encargado" style="max-width:180px">
+<input type="password" id="encPass" placeholder="Contraseña" style="max-width:140px">
+<button class="user-btn" onclick="loginEncargado()">Entrar</button>
+</div>
+</div>
+
     <div class="sec-label">Información general</div>
 <div class="form-grid">
 <div class="fg"><label>Folio</label><input id="folio" readonly></div>
@@ -199,7 +211,7 @@ tr:last-child td{border-bottom:none}
 
     <div style="margin-top:14px;display:flex;align-items:center;gap:14px">
 <button class="btn-save" id="btnGuardar" onclick="guardar()">Guardar registro</button>
-<div class="lock-notice">&#128274; Cada registrador solo puede editar o eliminar sus propios registros</div>
+<div class="lock-notice">&#128274; Una vez guardado, solo un encargado de Lecciones Aprendidas puede editar o eliminar el registro.</div>
 </div>
 </div>
 
@@ -302,6 +314,7 @@ const TURNO_H = 9; // horas por turno
 let registros = [];
 let usuarioActivo = '';
 let usuarioUid = null;
+let esEncargado = false;
 let charts = {};
 let editId = null;
 let unsubscribeRegistros = null;
@@ -325,13 +338,47 @@ auth.signInAnonymously().catch(err=>{
 auth.onAuthStateChanged(user=>{
   if(user){
     usuarioUid = user.uid;
-    setConn('ok', 'Conectado');
+    esEncargado = user.providerData.some(p=>p.providerId==='password');
+    setConn('ok', esEncargado ? 'Conectado (encargado)' : 'Conectado');
+    actualizarUIEncargado();
     iniciarEscuchaRegistros();
   } else {
     usuarioUid = null;
+    esEncargado = false;
     setConn('', 'Desconectado');
   }
 });
+
+// ── Modo encargado (correo/contraseña) ──────────────────────
+function actualizarUIEncargado(){
+  const texto = document.getElementById('encargadoTexto');
+  const box   = document.getElementById('encargadoBox');
+  if(esEncargado){
+    texto.textContent = '✓ Modo encargado activo';
+    texto.style.color = '#97c459';
+    box.innerHTML = `<button class="user-btn" onclick="salirEncargado()">Salir del modo encargado</button>`;
+  } else {
+    texto.textContent = 'Modo encargado: no activo';
+    texto.style.color = '#8aa0b8';
+    box.innerHTML = `<input type="email" id="encEmail" placeholder="Correo de encargado" style="max-width:180px">
+<input type="password" id="encPass" placeholder="Contraseña" style="max-width:140px">
+<button class="user-btn" onclick="loginEncargado()">Entrar</button>`;
+  }
+  renderTabla();
+}
+
+function loginEncargado(){
+  const email = document.getElementById('encEmail').value.trim();
+  const pass  = document.getElementById('encPass').value;
+  if(!email||!pass){ alert('Escribe correo y contraseña de encargado.'); return; }
+  auth.signInWithEmailAndPassword(email, pass).catch(err=>{
+    alert('No se pudo iniciar sesión como encargado: ' + err.message);
+  });
+}
+
+function salirEncargado(){
+  auth.signOut().then(()=>{ auth.signInAnonymously(); });
+}
 
 function iniciarEscuchaRegistros(){
   if(unsubscribeRegistros) unsubscribeRegistros();
@@ -495,8 +542,8 @@ async function guardar(){
 function abrirEdicion(id){
   const r = registros.find(x=>x.id===id);
   if(!r) return;
-  if(r.registradorUid !== usuarioUid){
-    alert('Solo ' + r.registrador + ' puede editar este registro.');
+  if(!esEncargado){
+    alert('Solo un encargado de Lecciones Aprendidas puede editar registros.');
     return;
   }
   editId = id;
@@ -519,8 +566,8 @@ async function guardarEdicion(){
   if(editId === null) return;
   const r = registros.find(x=>x.id===editId);
   if(!r) return;
-  if(r.registradorUid !== usuarioUid){
-    alert('Solo ' + r.registrador + ' puede editar este registro.');
+  if(!esEncargado){
+    alert('Solo un encargado de Lecciones Aprendidas puede editar registros.');
     cerrarModal();
     return;
   }
@@ -546,8 +593,8 @@ async function guardarEdicion(){
 async function eliminarRegistro(id){
   const r = registros.find(x=>x.id===id);
   if(!r) return;
-  if(r.registradorUid !== usuarioUid){
-    alert('Solo ' + r.registrador + ' puede eliminar este registro.');
+  if(!esEncargado){
+    alert('Solo un encargado de Lecciones Aprendidas puede eliminar registros.');
     return;
   }
   if(!confirm(`¿Eliminar el registro ${r.folio}?\nEsta acción no se puede deshacer.`)) return;
@@ -570,10 +617,12 @@ function renderTabla(){
     const depList = (r.deptos||[]).join(', ')||'—';
     const {turnos,extra} = tmDesglose(r.horasTM||0);
     const tmStr = turnos>0 ? `${r.horasTM}h (${turnos}T${extra>0?'+'+extra+'h':''})` : `${r.horasTM}h (extra)`;
-    const puedEdit = r.registradorUid === usuarioUid;
-    const acciones = puedEdit
-      ? `<div style="display:flex;gap:5px"><button class="btn-edit" onclick="abrirEdicion('${r.id}')">Editar</button><button class="btn-del" onclick="eliminarRegistro('${r.id}')" title="Eliminar registro">&#x2715; Eliminar</button></div>`
-      : '<span style="font-size:11px;color:#4a6a8a">—</span>';
+    let botones = '';
+    if(esEncargado){
+      botones += `<button class="btn-edit" onclick="abrirEdicion('${r.id}')">Editar</button>`;
+      botones += `<button class="btn-del" onclick="eliminarRegistro('${r.id}')" title="Eliminar registro">&#x2715; Eliminar</button>`;
+    }
+    const acciones = botones ? `<div style="display:flex;gap:5px">${botones}</div>` : '<span style="font-size:11px;color:#4a6a8a">—</span>';
     return `<tr>
 <td style="font-family:monospace;font-size:11px">${r.folio}</td>
 <td><span class="badge badge-${r.tipo}">${r.tipo}</span></td>
