@@ -159,7 +159,7 @@ tr:last-child td{border-bottom:none}
 <div class="fg"><label>Número de proyecto</label><input id="numeroProyecto" placeholder="Ej. PRY-2024-001"></div>
 <div class="fg"><label>Nombre de proyecto</label><input id="nombreProyecto" placeholder="Nombre del proyecto"></div>
 <div class="fg"><label>Fase</label>
-<select id="fase">
+<select id="fase" onchange="toggleFaseOtro()">
 <option>Liberación de dibujo</option>
 <option>Estructural, acero o pintura</option>
 <option>Montaje mecánico</option>
@@ -170,6 +170,10 @@ tr:last-child td{border-bottom:none}
 <option>Inspecciones control</option>
 <option>Otros</option>
 </select>
+</div>
+<div class="fg" id="faseOtroBox" style="display:none">
+<label>Especifica la fase (opcional)</label>
+<input type="text" id="faseOtro" placeholder="Escribe la fase...">
 </div>
 <div class="fg">
 <label>Horas de tiempo muerto <span style="color:#5a7a9a">(turno = 9 h, excedente = tiempo extra)</span></label>
@@ -320,10 +324,6 @@ let editId = null;
 let unsubscribeRegistros = null;
 
 // ── Conexión / autenticación anónima ────────────────────────
-// NOTA: esta autenticación anónima es TEMPORAL, para poder controlar
-// permisos de edición/eliminación mientras el archivo no está dentro
-// de Procore. Cuando se integre como app de Procore, este bloque se
-// reemplaza por la identidad real que Procore entrega vía OAuth.
 function setConn(estado, texto){
   const dot = document.getElementById('connDot');
   dot.className = 'conn-dot' + (estado==='ok' ? ' ok' : estado==='err' ? ' err' : '');
@@ -431,6 +431,13 @@ async function getSiguienteFolio(tipo){
   return `${year}-${tipo}-${String(nuevo).padStart(5,'0')}`;
 }
 
+// ── Fase "Otros" ────────────────────────────────────────────
+function toggleFaseOtro(){
+  const esOtros = document.getElementById('fase').value === 'Otros';
+  document.getElementById('faseOtroBox').style.display = esOtros ? 'flex' : 'none';
+  if(!esOtros) document.getElementById('faseOtro').value = '';
+}
+
 // ── TM info en tiempo real ────────────────────────────────
 function actualizarTMInfo(){
   const h = parseFloat(document.getElementById('horasTM').value)||0;
@@ -496,13 +503,19 @@ async function guardar(){
     const fechaHoy    = new Date().toISOString().split('T')[0];
     const horas       = parseFloat(document.getElementById('horasTM').value)||0;
 
+    let fase = document.getElementById('fase').value;
+    if(fase === 'Otros'){
+      const otro = document.getElementById('faseOtro').value.trim();
+      if(otro) fase = 'Otros - ' + otro;
+    }
+
     await db.collection('registros').add({
       folio,
       tipo,
       numero:           document.getElementById('numeroProyecto').value.trim(),
       proyecto:         (document.getElementById('numeroProyecto').value.trim()||'') +
                         (document.getElementById('nombreProyecto').value.trim() ? ' - '+document.getElementById('nombreProyecto').value.trim() : ''),
-      fase:             document.getElementById('fase').value,
+      fase:             fase,
       horasTM:          horas,
       descripcion:      document.getElementById('descripcion').value,
       deptos:           leerDeptos('deptSelector'),
@@ -524,6 +537,8 @@ async function guardar(){
     });
     document.getElementById('horasTM').value = '0';
     actualizarTMInfo();
+    document.getElementById('fase').value = 'Liberación de dibujo';
+    toggleFaseOtro();
     document.getElementById('estatus').value = 'Abierto';
     document.getElementById('fechaImpl').value = '';
     document.getElementById('fechaCierre').value = '';
