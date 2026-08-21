@@ -72,6 +72,8 @@ tr:last-child td{border-bottom:none}
 .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 .modal-title{font-size:15px;font-weight:600;color:#e0eaff}
 .modal-close{background:none;border:none;color:#8aa0b8;cursor:pointer;font-size:20px}
+.import-box{background:#1a2d1a;border:1px solid #2e4a2e;border-radius:8px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;font-size:12px;color:#97c459}
+.import-box input[type=checkbox]{width:15px;height:15px;accent-color:#97c459;cursor:pointer}
 </style>
 </head>
 <body>
@@ -143,10 +145,20 @@ tr:last-child td{border-bottom:none}
 </div>
 </div>
 
+    <div id="importBox" class="import-box" style="display:none;flex-direction:column;align-items:flex-start;gap:8px">
+<div style="display:flex;align-items:center;gap:10px;width:100%">
+<input type="checkbox" id="modoImport" onchange="toggleModoImport()">
+<label for="modoImport">📋 Registro histórico — cargar un caso anterior conservando su folio y fecha original</label>
+</div>
+<button class="user-btn" id="btnImportarLote" style="background:#2e7d32" onclick="importarLoteHistorico()">⬆ Importar las 11 lecciones aprendidas de David Aguirre (folios LA24-001 a LA26-001)</button>
+</div>
+
     <div class="sec-label">Información general</div>
 <div class="form-grid">
-<div class="fg"><label>Folio</label><input id="folio" readonly></div>
-<div class="fg"><label>Fecha registro</label><input id="fechaRegistro" readonly></div>
+<div class="fg" id="folioAutoBox"><label>Folio</label><input id="folio" readonly></div>
+<div class="fg" id="folioManualBox" style="display:none"><label>Folio original (histórico)</label><input type="text" id="folioManual" placeholder="Ej. LA-045 o el que hayan usado"></div>
+<div class="fg" id="fechaAutoBox"><label>Fecha registro</label><input id="fechaRegistro" readonly></div>
+<div class="fg" id="fechaManualBox" style="display:none"><label>Fecha real del hallazgo</label><input type="date" id="fechaManual"></div>
 <div class="fg"><label>Tipo de registro</label>
 <select id="tipo" onchange="actualizarFolio()">
 <option value="FA">Falla</option>
@@ -263,6 +275,7 @@ tr:last-child td{border-bottom:none}
 <button class="modal-close" onclick="cerrarModal()">&#x2715;</button>
 </div>
 <div class="form-grid">
+<div class="fg"><label>Folio</label><input type="text" id="m-folio"></div>
 <div class="fg"><label>Estatus</label>
 <select id="m-estatus">
 <option value="Abierto">Abierto</option>
@@ -364,6 +377,11 @@ function actualizarUIEncargado(){
 <input type="password" id="encPass" placeholder="Contraseña" style="max-width:140px">
 <button class="user-btn" onclick="loginEncargado()">Entrar</button>`;
   }
+  document.getElementById('importBox').style.display = esEncargado ? 'flex' : 'none';
+  if(!esEncargado){
+    document.getElementById('modoImport').checked = false;
+    toggleModoImport();
+  }
   renderTabla();
 }
 
@@ -378,6 +396,90 @@ function loginEncargado(){
 
 function salirEncargado(){
   auth.signOut().then(()=>{ auth.signInAnonymously(); });
+}
+
+// ── Importación en lote (una sola vez) ───────────────────────
+const LOTE_HISTORICO = [
+  { folio:'LA24-001', texto:'Agregar a formatos de inspección, puntos críticos', motivo:'Proyectos anteriores', fecha:'2024-01-01' },
+  { folio:'LA24-002', texto:'Analizar los procesos y pesos para seleccionar mejor forma de levantar los equipos', motivo:'Proyectos anteriores', fecha:'2024-01-01' },
+  { folio:'LA24-003', texto:'Asegurar método de empaque e instalación acorde a las condiciones requeridas', motivo:'Proyectos anteriores', fecha:'2024-01-01' },
+  { folio:'LA24-004', texto:'Buscar estandarizar planos, procesos, inspecciones', motivo:'Proyectos anteriores', fecha:'2024-01-01' },
+  { folio:'LA24-005', texto:'Dar seguimiento a componentes para darlos de baja de sistema cuando se mandan al SCRAP para no afectar inventarios', motivo:'Proyectos anteriores', fecha:'2024-01-01' },
+  { folio:'LA24-006', texto:'Desarrollo de DFMEA y PFMEA para asegurar la creación correcta de dibujos y procesos', motivo:'Proyectos anteriores', fecha:'2024-01-01' },
+  { folio:'LA24-007', texto:'Realizar cambios de ingeniería de forma adecuada acorde al procedimiento N2-AC-039', motivo:'Proyectos anteriores', fecha:'2024-01-01' },
+  { folio:'LA24-008', texto:'Revisar componentes en el SAP', motivo:'Proyectos anteriores', fecha:'2024-01-01' },
+  { folio:'LA24-009', texto:'Verificar BOM y SAP al inicio de proyecto, en conjunto con los diferentes departamentos involucrados para validarlo', motivo:'Proyectos anteriores', fecha:'2024-01-01' },
+  { folio:'LA24-010', texto:'Mejorar la gestión tanto en documentación para garantizar información precisa, actualizada y oportuna.', motivo:'Proyectos anteriores', fecha:'2024-01-01' },
+  { folio:'LA26-001', texto:'Seguimiento adecuado en instalaciones de contratistas externos', motivo:'Se detecta en junta de seguimiento de PNC', fecha:'2026-06-22' }
+];
+
+async function importarLoteHistorico(){
+  if(!esEncargado){ alert('Solo un encargado puede importar el lote.'); return; }
+
+  // Evita duplicar si ya se importó antes
+  const existe = await db.collection('registros').where('folio','==','LA24-001').limit(1).get();
+  if(!existe.empty){
+    alert('Este lote ya fue importado anteriormente (se encontró el folio LA24-001). No se volvió a importar para evitar duplicados.');
+    return;
+  }
+
+  if(!confirm(`Se van a importar ${LOTE_HISTORICO.length} lecciones aprendidas con sus folios originales (LA24-001 a LA26-001).\n\n¿Continuar?`)) return;
+
+  const btn = document.getElementById('btnImportarLote');
+  btn.disabled = true; btn.textContent = 'Importando...';
+
+  try{
+    const batch = db.batch();
+    LOTE_HISTORICO.forEach(item=>{
+      const ref = db.collection('registros').doc();
+      batch.set(ref, {
+        folio:            item.folio,
+        tipo:             'LA',
+        numero:           '',
+        proyecto:         '',
+        fase:             'Otros',
+        horasTM:          0,
+        descripcion:      item.texto,
+        deptos:           [],
+        estatus:          'Cerrado',
+        fechaImpl:        '',
+        fechaCierre:      item.fecha,
+        accionCorrectiva: 'Motivo: ' + item.motivo,
+        registrador:      'David Aguirre',
+        registradorUid:   usuarioUid,
+        fechaRegistro:    item.fecha,
+        fechaRegistroTS:  firebase.firestore.Timestamp.fromDate(new Date(item.fecha + 'T12:00:00')),
+        historico:        true,
+        diasResolucion:   diasEntre(item.fecha, item.fecha)
+      });
+    });
+
+    // Fija el contador: próximo folio automático LA en el año actual será LA26-002
+    const yy = String(new Date().getFullYear()).slice(-2);
+    const metaRef = db.collection('meta').doc('contadores');
+    batch.set(metaRef, { ['LA'+yy]: 1 }, { merge: true });
+
+    await batch.commit();
+    alert('Se importaron correctamente las ' + LOTE_HISTORICO.length + ' lecciones aprendidas.\nEl próximo folio automático de tipo LA será LA' + yy + '-002.');
+    btn.textContent = '✓ Lote ya importado';
+  }catch(e){
+    console.error(e);
+    alert('Error al importar: ' + e.message);
+    btn.disabled = false; btn.textContent = '⬆ Importar las 11 lecciones aprendidas de David Aguirre (folios LA24-001 a LA26-001)';
+  }
+}
+
+// ── Modo registro histórico ──────────────────────────────────
+function toggleModoImport(){
+  const on = document.getElementById('modoImport').checked && esEncargado;
+  document.getElementById('folioAutoBox').style.display   = on ? 'none' : 'flex';
+  document.getElementById('folioManualBox').style.display = on ? 'flex' : 'none';
+  document.getElementById('fechaAutoBox').style.display    = on ? 'none' : 'flex';
+  document.getElementById('fechaManualBox').style.display  = on ? 'flex' : 'none';
+  if(!on){
+    document.getElementById('folioManual').value = '';
+    document.getElementById('fechaManual').value = '';
+  }
 }
 
 function iniciarEscuchaRegistros(){
@@ -406,29 +508,31 @@ function setUsuario(){
 // ── Folio (vista previa; el número real se asigna al guardar) ──
 async function actualizarFolio(){
   const tipo = document.getElementById('tipo').value;
-  const year = new Date().getFullYear();
+  const yy = String(new Date().getFullYear()).slice(-2);
+  const clave = tipo + yy;
   const folioEl = document.getElementById('folio');
   try{
     const snap = await db.collection('meta').doc('contadores').get();
     const data = snap.exists ? snap.data() : {};
-    const siguiente = (data[tipo]||0) + 1;
-    folioEl.value = `${year}-${tipo}-${String(siguiente).padStart(5,'0')}`;
+    const siguiente = (data[clave]||0) + 1;
+    folioEl.value = `${tipo}${yy}-${String(siguiente).padStart(3,'0')}`;
   }catch(e){
     folioEl.value = 'Se generará al guardar';
   }
 }
 
 async function getSiguienteFolio(tipo){
-  const year = new Date().getFullYear();
+  const yy = String(new Date().getFullYear()).slice(-2);
+  const clave = tipo + yy;
   const ref = db.collection('meta').doc('contadores');
   const nuevo = await db.runTransaction(async t=>{
     const snap = await t.get(ref);
     const data = snap.exists ? snap.data() : {};
-    const actual = (data[tipo]||0) + 1;
-    t.set(ref, { ...data, [tipo]: actual }, { merge: true });
+    const actual = (data[clave]||0) + 1;
+    t.set(ref, { ...data, [clave]: actual }, { merge: true });
     return actual;
   });
-  return `${year}-${tipo}-${String(nuevo).padStart(5,'0')}`;
+  return `${tipo}${yy}-${String(nuevo).padStart(3,'0')}`;
 }
 
 // ── Fase "Otros" ────────────────────────────────────────────
@@ -493,20 +597,40 @@ async function guardar(){
   if(!usuarioActivo){ alert('Confirma tu nombre antes de guardar.'); return; }
   if(!usuarioUid){ alert('Todavía no hay conexión con la base de datos, espera un momento e intenta de nuevo.'); return; }
 
+  const esImportacion = esEncargado && document.getElementById('modoImport').checked;
+
+  if(esImportacion && !document.getElementById('folioManual').value.trim()){
+    alert('Escribe el folio original del registro histórico.');
+    return;
+  }
+  if(esImportacion && !document.getElementById('fechaManual').value){
+    alert('Escribe la fecha real del hallazgo histórico.');
+    return;
+  }
+
   const btn = document.getElementById('btnGuardar');
   btn.disabled = true; btn.textContent = 'Guardando...';
 
   try{
     const tipo        = document.getElementById('tipo').value;
-    const folio       = await getSiguienteFolio(tipo);
     const fechaCierre = document.getElementById('fechaCierre').value;
-    const fechaHoy    = new Date().toISOString().split('T')[0];
     const horas       = parseFloat(document.getElementById('horasTM').value)||0;
 
     let fase = document.getElementById('fase').value;
     if(fase === 'Otros'){
       const otro = document.getElementById('faseOtro').value.trim();
       if(otro) fase = 'Otros - ' + otro;
+    }
+
+    let folio, fechaHoy, fechaRegistroTS;
+    if(esImportacion){
+      folio     = document.getElementById('folioManual').value.trim();
+      fechaHoy  = document.getElementById('fechaManual').value;
+      fechaRegistroTS = firebase.firestore.Timestamp.fromDate(new Date(fechaHoy + 'T12:00:00'));
+    } else {
+      folio     = await getSiguienteFolio(tipo);
+      fechaHoy  = new Date().toISOString().split('T')[0];
+      fechaRegistroTS = firebase.firestore.FieldValue.serverTimestamp();
     }
 
     await db.collection('registros').add({
@@ -526,7 +650,8 @@ async function guardar(){
       registrador:      usuarioActivo,
       registradorUid:   usuarioUid,
       fechaRegistro:    fechaHoy,
-      fechaRegistroTS:  firebase.firestore.FieldValue.serverTimestamp(),
+      fechaRegistroTS:  fechaRegistroTS,
+      historico:        esImportacion,
       diasResolucion:   diasEntre(fechaHoy, fechaCierre)
     });
 
@@ -543,8 +668,10 @@ async function guardar(){
     document.getElementById('fechaImpl').value = '';
     document.getElementById('fechaCierre').value = '';
     document.querySelectorAll('#deptSelector input[type=checkbox]').forEach(c=>c.checked=false);
+    document.getElementById('folioManual').value = '';
+    document.getElementById('fechaManual').value = '';
 
-    alert('Registro guardado correctamente.');
+    alert(esImportacion ? 'Registro histórico guardado correctamente.' : 'Registro guardado correctamente.');
   }catch(e){
     console.error(e);
     alert('Ocurrió un error al guardar: ' + e.message);
@@ -563,6 +690,7 @@ function abrirEdicion(id){
   }
   editId = id;
   document.getElementById('modalTitle').textContent = 'Editar ' + r.folio;
+  document.getElementById('m-folio').value = r.folio;
   document.getElementById('m-estatus').value = r.estatus;
   document.getElementById('m-fechaImpl').value = r.fechaImpl||'';
   document.getElementById('m-fechaCierre').value = r.fechaCierre||'';
@@ -587,8 +715,11 @@ async function guardarEdicion(){
     return;
   }
   const fechaCierre = document.getElementById('m-fechaCierre').value;
+  const nuevoFolio  = document.getElementById('m-folio').value.trim();
+  if(!nuevoFolio){ alert('El folio no puede quedar vacío.'); return; }
   try{
     await db.collection('registros').doc(editId).update({
+      folio:             nuevoFolio,
       estatus:          document.getElementById('m-estatus').value,
       fechaImpl:        document.getElementById('m-fechaImpl').value,
       fechaCierre:      fechaCierre,
@@ -638,8 +769,9 @@ function renderTabla(){
       botones += `<button class="btn-del" onclick="eliminarRegistro('${r.id}')" title="Eliminar registro">&#x2715; Eliminar</button>`;
     }
     const acciones = botones ? `<div style="display:flex;gap:5px">${botones}</div>` : '<span style="font-size:11px;color:#4a6a8a">—</span>';
+    const folioTxt = r.historico ? `${r.folio} <span style="color:#5a7a9a">(hist.)</span>` : r.folio;
     return `<tr>
-<td style="font-family:monospace;font-size:11px">${r.folio}</td>
+<td style="font-family:monospace;font-size:11px">${folioTxt}</td>
 <td><span class="badge badge-${r.tipo}">${r.tipo}</span></td>
 <td>${r.proyecto||'—'}</td>
 <td style="font-size:11px">${depList}</td>
