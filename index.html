@@ -145,12 +145,9 @@ tr:last-child td{border-bottom:none}
 </div>
 </div>
 
-    <div id="importBox" class="import-box" style="display:none;flex-direction:column;align-items:flex-start;gap:8px">
-<div style="display:flex;align-items:center;gap:10px;width:100%">
+    <div id="importBox" class="import-box" style="display:none">
 <input type="checkbox" id="modoImport" onchange="toggleModoImport()">
 <label for="modoImport">📋 Registro histórico — cargar un caso anterior conservando su folio y fecha original</label>
-</div>
-<button class="user-btn" id="btnImportarLote" style="background:#2e7d32" onclick="importarLoteHistorico()">⬆ Importar las 11 lecciones aprendidas de David Aguirre (folios LA24-001 a LA26-001)</button>
 </div>
 
     <div class="sec-label">Información general</div>
@@ -396,77 +393,6 @@ function loginEncargado(){
 
 function salirEncargado(){
   auth.signOut().then(()=>{ auth.signInAnonymously(); });
-}
-
-// ── Importación en lote (una sola vez) ───────────────────────
-const LOTE_HISTORICO = [
-  { folio:'LA24-001', texto:'Agregar a formatos de inspección, puntos críticos', motivo:'Proyectos anteriores', fecha:'2024-01-01' },
-  { folio:'LA24-002', texto:'Analizar los procesos y pesos para seleccionar mejor forma de levantar los equipos', motivo:'Proyectos anteriores', fecha:'2024-01-01' },
-  { folio:'LA24-003', texto:'Asegurar método de empaque e instalación acorde a las condiciones requeridas', motivo:'Proyectos anteriores', fecha:'2024-01-01' },
-  { folio:'LA24-004', texto:'Buscar estandarizar planos, procesos, inspecciones', motivo:'Proyectos anteriores', fecha:'2024-01-01' },
-  { folio:'LA24-005', texto:'Dar seguimiento a componentes para darlos de baja de sistema cuando se mandan al SCRAP para no afectar inventarios', motivo:'Proyectos anteriores', fecha:'2024-01-01' },
-  { folio:'LA24-006', texto:'Desarrollo de DFMEA y PFMEA para asegurar la creación correcta de dibujos y procesos', motivo:'Proyectos anteriores', fecha:'2024-01-01' },
-  { folio:'LA24-007', texto:'Realizar cambios de ingeniería de forma adecuada acorde al procedimiento N2-AC-039', motivo:'Proyectos anteriores', fecha:'2024-01-01' },
-  { folio:'LA24-008', texto:'Revisar componentes en el SAP', motivo:'Proyectos anteriores', fecha:'2024-01-01' },
-  { folio:'LA24-009', texto:'Verificar BOM y SAP al inicio de proyecto, en conjunto con los diferentes departamentos involucrados para validarlo', motivo:'Proyectos anteriores', fecha:'2024-01-01' },
-  { folio:'LA24-010', texto:'Mejorar la gestión tanto en documentación para garantizar información precisa, actualizada y oportuna.', motivo:'Proyectos anteriores', fecha:'2024-01-01' },
-  { folio:'LA26-001', texto:'Seguimiento adecuado en instalaciones de contratistas externos', motivo:'Se detecta en junta de seguimiento de PNC', fecha:'2026-06-22' }
-];
-
-async function importarLoteHistorico(){
-  if(!esEncargado){ alert('Solo un encargado puede importar el lote.'); return; }
-
-  // Evita duplicar si ya se importó antes
-  const existe = await db.collection('registros').where('folio','==','LA24-001').limit(1).get();
-  if(!existe.empty){
-    alert('Este lote ya fue importado anteriormente (se encontró el folio LA24-001). No se volvió a importar para evitar duplicados.');
-    return;
-  }
-
-  if(!confirm(`Se van a importar ${LOTE_HISTORICO.length} lecciones aprendidas con sus folios originales (LA24-001 a LA26-001).\n\n¿Continuar?`)) return;
-
-  const btn = document.getElementById('btnImportarLote');
-  btn.disabled = true; btn.textContent = 'Importando...';
-
-  try{
-    const batch = db.batch();
-    LOTE_HISTORICO.forEach(item=>{
-      const ref = db.collection('registros').doc();
-      batch.set(ref, {
-        folio:            item.folio,
-        tipo:             'LA',
-        numero:           '',
-        proyecto:         '',
-        fase:             'Otros',
-        horasTM:          0,
-        descripcion:      item.texto,
-        deptos:           [],
-        estatus:          'Cerrado',
-        fechaImpl:        '',
-        fechaCierre:      item.fecha,
-        accionCorrectiva: 'Motivo: ' + item.motivo,
-        registrador:      'David Aguirre',
-        registradorUid:   usuarioUid,
-        fechaRegistro:    item.fecha,
-        fechaRegistroTS:  firebase.firestore.Timestamp.fromDate(new Date(item.fecha + 'T12:00:00')),
-        historico:        true,
-        diasResolucion:   diasEntre(item.fecha, item.fecha)
-      });
-    });
-
-    // Fija el contador: próximo folio automático LA en el año actual será LA26-002
-    const yy = String(new Date().getFullYear()).slice(-2);
-    const metaRef = db.collection('meta').doc('contadores');
-    batch.set(metaRef, { ['LA'+yy]: 1 }, { merge: true });
-
-    await batch.commit();
-    alert('Se importaron correctamente las ' + LOTE_HISTORICO.length + ' lecciones aprendidas.\nEl próximo folio automático de tipo LA será LA' + yy + '-002.');
-    btn.textContent = '✓ Lote ya importado';
-  }catch(e){
-    console.error(e);
-    alert('Error al importar: ' + e.message);
-    btn.disabled = false; btn.textContent = '⬆ Importar las 11 lecciones aprendidas de David Aguirre (folios LA24-001 a LA26-001)';
-  }
 }
 
 // ── Modo registro histórico ──────────────────────────────────
