@@ -671,7 +671,27 @@ async function eliminarRegistro(id){
   }
   if(!confirm(`¿Eliminar el registro ${r.folio}?\nEsta acción no se puede deshacer.`)) return;
   try{
-    await db.collection('registros').doc(id).delete();
+    await db.runTransaction(async t=>{
+      const regRef  = db.collection('registros').doc(id);
+      const metaRef = db.collection('meta').doc('contadores');
+
+      // Si el folio es automático (no histórico), verifica si es el último emitido
+      // de su tipo/año y, de ser así, regresa el contador un número.
+      if(!r.historico){
+        const m = String(r.folio).match(/^([A-Z]{2})(\d{2})-(\d{3})$/);
+        if(m){
+          const clave = m[1] + m[2];
+          const num   = parseInt(m[3], 10);
+          const metaSnap = await t.get(metaRef);
+          const data = metaSnap.exists ? metaSnap.data() : {};
+          if((data[clave]||0) === num){
+            t.set(metaRef, { ...data, [clave]: num - 1 }, { merge: true });
+          }
+        }
+      }
+
+      t.delete(regRef);
+    });
   }catch(e){
     console.error(e);
     alert('Error al eliminar: ' + e.message);
