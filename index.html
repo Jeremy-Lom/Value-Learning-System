@@ -417,6 +417,7 @@ function iniciarEscuchaRegistros(){
       renderTabla();
       actualizarKPIs();
       actualizarCharts();
+      actualizarFolio();
     }, err=>{
       console.error(err);
       setConn('err', 'Error leyendo registros (revisa reglas de Firestore).');
@@ -431,34 +432,37 @@ function setUsuario(){
   document.getElementById('usuarioConfirmado').textContent = '✓ ' + v;
 }
 
-// ── Folio (vista previa; el número real se asigna al guardar) ──
-async function actualizarFolio(){
-  const tipo = document.getElementById('tipo').value;
+// ── Folio: se calcula dinámicamente a partir de lo que ya existe ──
+// (ya no depende de un contador guardado aparte, así nunca se desincroniza
+// con lo que realmente hay en la base de datos, incluso después de borrar)
+function calcularSiguienteFolio(tipo){
   const yy = String(new Date().getFullYear()).slice(-2);
-  const clave = tipo + yy;
-  const folioEl = document.getElementById('folio');
-  try{
-    const snap = await db.collection('meta').doc('contadores').get();
-    const data = snap.exists ? snap.data() : {};
-    const siguiente = (data[clave]||0) + 1;
-    folioEl.value = `${tipo}${yy}-${String(siguiente).padStart(3,'0')}`;
-  }catch(e){
-    folioEl.value = 'Se generará al guardar';
+  const regex = new RegExp('^' + tipo + yy + '-(\\d{3})$');
+  let max = 0;
+  registros.forEach(r=>{
+    const m = String(r.folio||'').match(regex);
+    if(m){
+      const n = parseInt(m[1], 10);
+      if(n > max) max = n;
+    }
+  });
+  let siguiente = max + 1;
+  let folio = `${tipo}${yy}-${String(siguiente).padStart(3,'0')}`;
+  // seguro extra: si por alguna razón ya existiera ese folio, sigue avanzando
+  while(registros.some(r=>r.folio===folio)){
+    siguiente++;
+    folio = `${tipo}${yy}-${String(siguiente).padStart(3,'0')}`;
   }
+  return folio;
 }
 
-async function getSiguienteFolio(tipo){
-  const yy = String(new Date().getFullYear()).slice(-2);
-  const clave = tipo + yy;
-  const ref = db.collection('meta').doc('contadores');
-  const nuevo = await db.runTransaction(async t=>{
-    const snap = await t.get(ref);
-    const data = snap.exists ? snap.data() : {};
-    const actual = (data[clave]||0) + 1;
-    t.set(ref, { ...data, [clave]: actual }, { merge: true });
-    return actual;
-  });
-  return `${tipo}${yy}-${String(nuevo).padStart(3,'0')}`;
+function actualizarFolio(){
+  const tipo = document.getElementById('tipo').value;
+  document.getElementById('folio').value = calcularSiguienteFolio(tipo);
+}
+
+function getSiguienteFolio(tipo){
+  return calcularSiguienteFolio(tipo);
 }
 
 // ── Fase "Otros" ────────────────────────────────────────────
@@ -554,7 +558,7 @@ async function guardar(){
       fechaHoy  = document.getElementById('fechaManual').value;
       fechaRegistroTS = firebase.firestore.Timestamp.fromDate(new Date(fechaHoy + 'T12:00:00'));
     } else {
-      folio     = await getSiguienteFolio(tipo);
+      folio     = getSiguienteFolio(tipo);
       fechaHoy  = new Date().toISOString().split('T')[0];
       fechaRegistroTS = firebase.firestore.FieldValue.serverTimestamp();
     }
@@ -582,7 +586,6 @@ async function guardar(){
     });
 
     // limpiar formulario
-    actualizarFolio();
     ['numeroProyecto','nombreProyecto','descripcion','accionCorrectiva'].forEach(id=>{
       document.getElementById(id).value = '';
     });
@@ -596,6 +599,7 @@ async function guardar(){
     document.querySelectorAll('#deptSelector input[type=checkbox]').forEach(c=>c.checked=false);
     document.getElementById('folioManual').value = '';
     document.getElementById('fechaManual').value = '';
+    actualizarFolio();
 
     alert(esImportacion ? 'Registro histórico guardado correctamente.' : 'Registro guardado correctamente.');
   }catch(e){
@@ -671,27 +675,8 @@ async function eliminarRegistro(id){
   }
   if(!confirm(`¿Eliminar el registro ${r.folio}?\nEsta acción no se puede deshacer.`)) return;
   try{
-    await db.runTransaction(async t=>{
-      const regRef  = db.collection('registros').doc(id);
-      const metaRef = db.collection('meta').doc('contadores');
-
-      // Si el folio es automático (no histórico), verifica si es el último emitido
-      // de su tipo/año y, de ser así, regresa el contador un número.
-      if(!r.historico){
-        const m = String(r.folio).match(/^([A-Z]{2})(\d{2})-(\d{3})$/);
-        if(m){
-          const clave = m[1] + m[2];
-          const num   = parseInt(m[3], 10);
-          const metaSnap = await t.get(metaRef);
-          const data = metaSnap.exists ? metaSnap.data() : {};
-          if((data[clave]||0) === num){
-            t.set(metaRef, { ...data, [clave]: num - 1 }, { merge: true });
-          }
-        }
-      }
-
-      t.delete(regRef);
-    });
+    await db.collection('registros').doc(id).delete();
+    // el folio se recalcula solo en el próximo listado, no requiere pasos extra
   }catch(e){
     console.error(e);
     alert('Error al eliminar: ' + e.message);
@@ -811,7 +796,6 @@ function actualizarCharts(){
 
 // ── Init ──────────────────────────────────────────────────
 document.getElementById('fechaRegistro').value = new Date().toLocaleDateString('es-MX');
-actualizarFolio();
 actualizarCharts();
 </script>
 </body>
