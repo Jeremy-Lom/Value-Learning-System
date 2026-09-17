@@ -145,20 +145,13 @@ tr:last-child td{border-bottom:none}
 </div>
 </div>
 
-    <div id="importBox" class="import-box" style="display:none">
-<input type="checkbox" id="modoImport" onchange="toggleModoImport()">
-<label for="modoImport">📋 Registro histórico — cargar un caso anterior conservando su folio y fecha original</label>
-</div>
-
     <div class="sec-label">Información general</div>
 <div class="form-grid">
-<div class="fg" id="folioAutoBox"><label>Folio</label><input id="folio" readonly></div>
-<div class="fg" id="folioManualBox" style="display:none"><label>Folio original (histórico)</label><input type="text" id="folioManual" placeholder="Ej. LA-045 o el que hayan usado"></div>
-<div class="fg" id="fechaAutoBox"><label>Fecha registro</label><input id="fechaRegistro" readonly></div>
-<div class="fg" id="fechaManualBox" style="display:none"><label>Fecha real del hallazgo</label><input type="date" id="fechaManual"></div>
+<div class="fg"><label>Folio</label><input id="folio" readonly></div>
+<div class="fg"><label>Fecha registro</label><input id="fechaRegistro" readonly></div>
 <div class="fg"><label>Tipo de registro</label>
 <select id="tipo" onchange="actualizarFolio()">
-<option value="FA">Falla</option>
+<option value="FA">PNC</option>
 <option value="LA">Lección Aprendida</option>
 <option value="BP">Buena Práctica</option>
 <option value="RT">Retrabajo</option>
@@ -234,7 +227,7 @@ tr:last-child td{border-bottom:none}
 <span style="font-size:12px;color:#8aa0b8">Filtrar:</span>
 <select id="filtroTipo" onchange="renderTabla()">
 <option value="">Todos los tipos</option>
-<option value="FA">Falla</option>
+<option value="FA">PNC</option>
 <option value="LA">Lección Aprendida</option>
 <option value="BP">Buena Práctica</option>
 <option value="RT">Retrabajo</option>
@@ -251,7 +244,7 @@ tr:last-child td{border-bottom:none}
 <table>
 <thead>
 <tr>
-<th>Folio</th><th>Tipo</th><th>Proyecto</th><th>Deptos. responsables</th>
+<th>Folio</th><th>Tipo</th><th>Proyecto</th><th>Descripción</th><th>Deptos. responsables</th>
 <th>Tiempo muerto</th><th>Estatus</th><th>Días resolución</th><th>Registrador</th><th>Acción</th>
 </tr>
 </thead>
@@ -273,6 +266,35 @@ tr:last-child td{border-bottom:none}
 </div>
 <div class="form-grid">
 <div class="fg"><label>Folio</label><input type="text" id="m-folio"></div>
+<div class="fg"><label>Tipo de registro</label>
+<select id="m-tipo">
+<option value="FA">PNC</option>
+<option value="LA">Lección Aprendida</option>
+<option value="BP">Buena Práctica</option>
+<option value="RT">Retrabajo</option>
+<option value="OB">Observación</option>
+</select>
+</div>
+<div class="fg"><label>Número de proyecto</label><input type="text" id="m-numeroProyecto"></div>
+<div class="fg"><label>Nombre de proyecto</label><input type="text" id="m-nombreProyecto"></div>
+<div class="fg"><label>Fase</label>
+<select id="m-fase" onchange="toggleFaseOtroModal()">
+<option>Liberación de dibujo</option>
+<option>Estructural, acero o pintura</option>
+<option>Montaje mecánico</option>
+<option>Montaje eléctrico</option>
+<option>Montaje control</option>
+<option>Inspecciones mecánicas</option>
+<option>Inspecciones eléctricas</option>
+<option>Inspecciones control</option>
+<option>Otros</option>
+</select>
+</div>
+<div class="fg" id="m-faseOtroBox" style="display:none">
+<label>Especifica la fase</label>
+<input type="text" id="m-faseOtro" placeholder="Escribe la fase...">
+</div>
+<div class="fg"><label>Horas de tiempo muerto</label><input type="number" id="m-horasTM" min="0" step="0.5"></div>
 <div class="fg"><label>Estatus</label>
 <select id="m-estatus">
 <option value="Abierto">Abierto</option>
@@ -374,11 +396,6 @@ function actualizarUIEncargado(){
 <input type="password" id="encPass" placeholder="Contraseña" style="max-width:140px">
 <button class="user-btn" onclick="loginEncargado()">Entrar</button>`;
   }
-  document.getElementById('importBox').style.display = esEncargado ? 'flex' : 'none';
-  if(!esEncargado){
-    document.getElementById('modoImport').checked = false;
-    toggleModoImport();
-  }
   renderTabla();
 }
 
@@ -393,19 +410,6 @@ function loginEncargado(){
 
 function salirEncargado(){
   auth.signOut().then(()=>{ auth.signInAnonymously(); });
-}
-
-// ── Modo registro histórico ──────────────────────────────────
-function toggleModoImport(){
-  const on = document.getElementById('modoImport').checked && esEncargado;
-  document.getElementById('folioAutoBox').style.display   = on ? 'none' : 'flex';
-  document.getElementById('folioManualBox').style.display = on ? 'flex' : 'none';
-  document.getElementById('fechaAutoBox').style.display    = on ? 'none' : 'flex';
-  document.getElementById('fechaManualBox').style.display  = on ? 'flex' : 'none';
-  if(!on){
-    document.getElementById('folioManual').value = '';
-    document.getElementById('fechaManual').value = '';
-  }
 }
 
 function iniciarEscuchaRegistros(){
@@ -472,6 +476,11 @@ function toggleFaseOtro(){
   if(!esOtros) document.getElementById('faseOtro').value = '';
 }
 
+function toggleFaseOtroModal(){
+  const esOtros = document.getElementById('m-fase').value === 'Otros';
+  document.getElementById('m-faseOtroBox').style.display = esOtros ? 'flex' : 'none';
+}
+
 // ── TM info en tiempo real ────────────────────────────────
 function actualizarTMInfo(){
   const h = parseFloat(document.getElementById('horasTM').value)||0;
@@ -527,17 +536,6 @@ async function guardar(){
   if(!usuarioActivo){ alert('Confirma tu nombre antes de guardar.'); return; }
   if(!usuarioUid){ alert('Todavía no hay conexión con la base de datos, espera un momento e intenta de nuevo.'); return; }
 
-  const esImportacion = esEncargado && document.getElementById('modoImport').checked;
-
-  if(esImportacion && !document.getElementById('folioManual').value.trim()){
-    alert('Escribe el folio original del registro histórico.');
-    return;
-  }
-  if(esImportacion && !document.getElementById('fechaManual').value){
-    alert('Escribe la fecha real del hallazgo histórico.');
-    return;
-  }
-
   const btn = document.getElementById('btnGuardar');
   btn.disabled = true; btn.textContent = 'Guardando...';
 
@@ -552,16 +550,9 @@ async function guardar(){
       if(otro) fase = 'Otros - ' + otro;
     }
 
-    let folio, fechaHoy, fechaRegistroTS;
-    if(esImportacion){
-      folio     = document.getElementById('folioManual').value.trim();
-      fechaHoy  = document.getElementById('fechaManual').value;
-      fechaRegistroTS = firebase.firestore.Timestamp.fromDate(new Date(fechaHoy + 'T12:00:00'));
-    } else {
-      folio     = getSiguienteFolio(tipo);
-      fechaHoy  = new Date().toISOString().split('T')[0];
-      fechaRegistroTS = firebase.firestore.FieldValue.serverTimestamp();
-    }
+    const folio            = getSiguienteFolio(tipo);
+    const fechaHoy          = new Date().toISOString().split('T')[0];
+    const fechaRegistroTS   = firebase.firestore.FieldValue.serverTimestamp();
 
     await db.collection('registros').add({
       folio,
@@ -581,7 +572,7 @@ async function guardar(){
       registradorUid:   usuarioUid,
       fechaRegistro:    fechaHoy,
       fechaRegistroTS:  fechaRegistroTS,
-      historico:        esImportacion,
+      historico:        false,
       diasResolucion:   diasEntre(fechaHoy, fechaCierre)
     });
 
@@ -597,11 +588,9 @@ async function guardar(){
     document.getElementById('fechaImpl').value = '';
     document.getElementById('fechaCierre').value = '';
     document.querySelectorAll('#deptSelector input[type=checkbox]').forEach(c=>c.checked=false);
-    document.getElementById('folioManual').value = '';
-    document.getElementById('fechaManual').value = '';
     actualizarFolio();
 
-    alert(esImportacion ? 'Registro histórico guardado correctamente.' : 'Registro guardado correctamente.');
+    alert('Registro guardado correctamente.');
   }catch(e){
     console.error(e);
     alert('Ocurrió un error al guardar: ' + e.message);
@@ -621,6 +610,16 @@ function abrirEdicion(id){
   editId = id;
   document.getElementById('modalTitle').textContent = 'Editar ' + r.folio;
   document.getElementById('m-folio').value = r.folio;
+  document.getElementById('m-tipo').value = r.tipo;
+  document.getElementById('m-numeroProyecto').value = r.numero||'';
+  document.getElementById('m-nombreProyecto').value = (r.proyecto||'').includes(' - ')
+    ? r.proyecto.split(' - ').slice(1).join(' - ')
+    : '';
+  const faseBase = (r.fase||'').startsWith('Otros - ') ? 'Otros' : (r.fase||'Liberación de dibujo');
+  document.getElementById('m-fase').value = faseBase;
+  document.getElementById('m-faseOtro').value = (r.fase||'').startsWith('Otros - ') ? r.fase.substring(8) : '';
+  toggleFaseOtroModal();
+  document.getElementById('m-horasTM').value = r.horasTM||0;
   document.getElementById('m-estatus').value = r.estatus;
   document.getElementById('m-fechaImpl').value = r.fechaImpl||'';
   document.getElementById('m-fechaCierre').value = r.fechaCierre||'';
@@ -647,9 +646,25 @@ async function guardarEdicion(){
   const fechaCierre = document.getElementById('m-fechaCierre').value;
   const nuevoFolio  = document.getElementById('m-folio').value.trim();
   if(!nuevoFolio){ alert('El folio no puede quedar vacío.'); return; }
+
+  let fase = document.getElementById('m-fase').value;
+  if(fase === 'Otros'){
+    const otro = document.getElementById('m-faseOtro').value.trim();
+    if(otro) fase = 'Otros - ' + otro;
+  }
+
+  const numero    = document.getElementById('m-numeroProyecto').value.trim();
+  const nombre    = document.getElementById('m-nombreProyecto').value.trim();
+  const proyecto  = numero + (nombre ? ' - ' + nombre : '');
+
   try{
     await db.collection('registros').doc(editId).update({
       folio:             nuevoFolio,
+      tipo:              document.getElementById('m-tipo').value,
+      numero:            numero,
+      proyecto:          proyecto,
+      fase:              fase,
+      horasTM:           parseFloat(document.getElementById('m-horasTM').value)||0,
       estatus:          document.getElementById('m-estatus').value,
       fechaImpl:        document.getElementById('m-fechaImpl').value,
       fechaCierre:      fechaCierre,
@@ -683,6 +698,11 @@ async function eliminarRegistro(id){
   }
 }
 
+// ── Etiquetas de tipo ────────────────────────────────────
+function labelTipo(tipo){
+  return { FA:'PNC', LA:'LA', BP:'BP', RT:'RT', OB:'OB' }[tipo] || tipo;
+}
+
 // ── Tabla ─────────────────────────────────────────────────
 function renderTabla(){
   const filtroT = document.getElementById('filtroTipo').value;
@@ -703,8 +723,9 @@ function renderTabla(){
     const folioTxt = r.historico ? `${r.folio} <span style="color:#5a7a9a">(hist.)</span>` : r.folio;
     return `<tr>
 <td style="font-family:monospace;font-size:11px">${folioTxt}</td>
-<td><span class="badge badge-${r.tipo}">${r.tipo}</span></td>
+<td><span class="badge badge-${r.tipo}">${labelTipo(r.tipo)}</span></td>
 <td>${r.proyecto||'—'}</td>
+<td style="font-size:11px;max-width:220px">${r.descripcion||'—'}</td>
 <td style="font-size:11px">${depList}</td>
 <td style="white-space:nowrap">${tmStr}</td>
 <td><span class="badge ${stCls}">${r.estatus}</span></td>
