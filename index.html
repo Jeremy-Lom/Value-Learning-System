@@ -31,6 +31,8 @@ body{background:#1a1a2e;color:#e0e0e0;font-family:Segoe UI,sans-serif;min-height
 .conn-dot.err{background:#f09595}
 .sec-label{font-size:11px;font-weight:700;color:#5a8ab8;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #243347}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+.span2{grid-column:1/-1}
 .fg{display:flex;flex-direction:column;gap:4px}
 .fg label{font-size:12px;color:#8aa0b8}
 .fg input,.fg select,.fg textarea{padding:7px 10px;border:1px solid #3a5070;border-radius:6px;background:#162130;color:#e0e0e0;font-size:13px;font-family:Segoe UI,sans-serif;width:100%}
@@ -38,7 +40,7 @@ body{background:#1a1a2e;color:#e0e0e0;font-family:Segoe UI,sans-serif;min-height
 .fg input[readonly],.fg input:disabled,.fg select:disabled,.fg textarea:disabled{opacity:.45;cursor:not-allowed}
 hr.div{border:none;border-top:1px solid #243347;margin:14px 0}
 .badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600}
-.badge-FA{background:#3d1a1a;color:#f09595}
+.badge-PNC,.badge-FA{background:#3d1a1a;color:#f09595}
 .badge-LA{background:#1a2d3d;color:#85b7eb}
 .badge-BP{background:#1a2d1a;color:#97c459}
 .badge-RT{background:#3d2e0a;color:#ef9f27}
@@ -68,12 +70,13 @@ tr:last-child td{border-bottom:none}
 .tm-info{font-size:11px;color:#5a7a9a;margin-top:4px;padding:5px 8px;background:#162130;border-radius:5px;border-left:2px solid #1976d2}
 .modal-overlay{display:none;position:fixed;inset:0;background:#000a;z-index:100;align-items:center;justify-content:center}
 .modal-overlay.open{display:flex}
-.modal{background:#1e2a3a;border:1px solid #2a3f5a;border-radius:12px;padding:22px;width:min(680px,95vw);max-height:90vh;overflow-y:auto}
+.modal{background:#1e2a3a;border:1px solid #2a3f5a;border-radius:12px;padding:22px;width:min(740px,95vw);max-height:90vh;overflow-y:auto}
 .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 .modal-title{font-size:15px;font-weight:600;color:#e0eaff}
 .modal-close{background:none;border:none;color:#8aa0b8;cursor:pointer;font-size:20px}
-.import-box{background:#1a2d1a;border:1px solid #2e4a2e;border-radius:8px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;font-size:12px;color:#97c459}
-.import-box input[type=checkbox]{width:15px;height:15px;accent-color:#97c459;cursor:pointer}
+/* Formulario PNC (etiqueta N4-CC-072) */
+.pnc-head{background:#3d1a1a;border:1px solid #5a2a2a;color:#f09595;border-radius:8px;padding:8px 12px;font-size:12px;font-weight:700;margin-top:10px}
+.pnc-sec{font-size:11px;font-weight:700;color:#f09595;text-transform:uppercase;letter-spacing:.07em;margin:16px 0 10px;padding-bottom:6px;border-bottom:1px solid #4a2a2a}
 </style>
 </head>
 <body>
@@ -90,7 +93,7 @@ tr:last-child td{border-bottom:none}
 <div class="kpi-sub" id="kpi-horas-sub">equivale a 0 turnos + 0 h extra</div>
 </div>
 <div class="kpi">
-<div class="kpi-label">Días perdidos FA / RT</div>
+<div class="kpi-label">Días perdidos PNC / RT</div>
 <div class="kpi-value" id="kpi-dias">0 d</div>
 <div class="kpi-sub" id="kpi-dias-sub">0 turnos completos + 0 h extra</div>
 </div>
@@ -110,7 +113,7 @@ tr:last-child td{border-bottom:none}
 <div class="charts-grid">
 <div class="chart-card"><div class="chart-title">Tiempo muerto por proyecto (h)</div><div class="canvas-wrap"><canvas id="g1"></canvas></div></div>
 <div class="chart-card"><div class="chart-title">Registros por tipo</div><div class="canvas-wrap"><canvas id="g2"></canvas></div></div>
-<div class="chart-card"><div class="chart-title">Turnos perdidos por tipo de falla (turno = 9 h)</div><div class="canvas-wrap"><canvas id="g3"></canvas></div></div>
+<div class="chart-card"><div class="chart-title">Turnos perdidos por tipo (turno = 9 h)</div><div class="canvas-wrap"><canvas id="g3"></canvas></div></div>
 <div class="chart-card"><div class="chart-title">Tiempo promedio resolución por mes (días)</div><div class="canvas-wrap"><canvas id="g4"></canvas></div></div>
 </div>
 
@@ -150,14 +153,19 @@ tr:last-child td{border-bottom:none}
 <div class="fg"><label>Folio</label><input id="folio" readonly></div>
 <div class="fg"><label>Fecha registro</label><input id="fechaRegistro" readonly></div>
 <div class="fg"><label>Tipo de registro</label>
-<select id="tipo" onchange="actualizarFolio()">
-<option value="FA">PNC</option>
+<select id="tipo" onchange="onTipoChange()">
+<option value="PNC">PNC</option>
 <option value="LA">Lección Aprendida</option>
 <option value="BP">Buena Práctica</option>
 <option value="RT">Retrabajo</option>
 <option value="OB">Observación</option>
 </select>
 </div>
+</div>
+
+<!-- Formulario general (todos los tipos excepto PNC) -->
+<div id="formGeneral">
+<div class="form-grid" style="margin-top:10px">
 <div class="fg"><label>Número de proyecto</label><input id="numeroProyecto" placeholder="Ej. PRY-2024-001"></div>
 <div class="fg"><label>Nombre de proyecto</label><input id="nombreProyecto" placeholder="Nombre del proyecto"></div>
 <div class="fg"><label>Fase</label>
@@ -183,12 +191,15 @@ tr:last-child td{border-bottom:none}
 <div class="tm-info" id="tmInfo">Ingresa las horas de paro — se calcularán turnos y tiempo extra automáticamente.</div>
 </div>
 </div>
+<div class="fg" style="margin-top:10px"><label>Descripción del hallazgo</label><textarea id="descripcion" rows="3" placeholder="Describe el hallazgo..."></textarea></div>
+</div>
 
-    <div class="fg" style="margin-top:10px"><label>Descripción del hallazgo</label><textarea id="descripcion" rows="3" placeholder="Describe el hallazgo..."></textarea></div>
+<!-- Formulario PNC (basado en la etiqueta N4-CC-072) — se genera por JavaScript -->
+<div id="formPNC" style="display:none"></div>
 
     <hr class="div">
 
-    <!-- Seguimiento -->
+    <!-- Seguimiento (común a todos los tipos) -->
 <div class="form-grid">
 <div class="fg">
 <label>Departamentos responsables del seguimiento</label>
@@ -227,7 +238,7 @@ tr:last-child td{border-bottom:none}
 <span style="font-size:12px;color:#8aa0b8">Filtrar:</span>
 <select id="filtroTipo" onchange="renderTabla()">
 <option value="">Todos los tipos</option>
-<option value="FA">PNC</option>
+<option value="PNC">PNC</option>
 <option value="LA">Lección Aprendida</option>
 <option value="BP">Buena Práctica</option>
 <option value="RT">Retrabajo</option>
@@ -264,17 +275,23 @@ tr:last-child td{border-bottom:none}
 <div class="modal-title" id="modalTitle">Editar registro</div>
 <button class="modal-close" onclick="cerrarModal()">&#x2715;</button>
 </div>
+
 <div class="form-grid">
 <div class="fg"><label>Folio</label><input type="text" id="m-folio"></div>
 <div class="fg"><label>Tipo de registro</label>
-<select id="m-tipo">
-<option value="FA">PNC</option>
+<select id="m-tipo" onchange="aplicarVistaTipoModal()">
+<option value="PNC">PNC</option>
 <option value="LA">Lección Aprendida</option>
 <option value="BP">Buena Práctica</option>
 <option value="RT">Retrabajo</option>
 <option value="OB">Observación</option>
 </select>
 </div>
+</div>
+
+<!-- Campos generales (todos los tipos excepto PNC) -->
+<div id="m-formGeneral">
+<div class="form-grid" style="margin-top:10px">
 <div class="fg"><label>Número de proyecto</label><input type="text" id="m-numeroProyecto"></div>
 <div class="fg"><label>Nombre de proyecto</label><input type="text" id="m-nombreProyecto"></div>
 <div class="fg"><label>Fase</label>
@@ -295,6 +312,16 @@ tr:last-child td{border-bottom:none}
 <input type="text" id="m-faseOtro" placeholder="Escribe la fase...">
 </div>
 <div class="fg"><label>Horas de tiempo muerto</label><input type="number" id="m-horasTM" min="0" step="0.5"></div>
+</div>
+<div class="fg" style="margin-top:10px"><label>Descripción del hallazgo</label><textarea id="m-descripcion" rows="3"></textarea></div>
+</div>
+
+<!-- Campos PNC (etiqueta N4-CC-072) — se genera por JavaScript -->
+<div id="m-formPNC" style="display:none"></div>
+
+<hr class="div">
+
+<div class="form-grid">
 <div class="fg"><label>Estatus</label>
 <select id="m-estatus">
 <option value="Abierto">Abierto</option>
@@ -319,7 +346,7 @@ tr:last-child td{border-bottom:none}
 </div>
 </div>
 <div class="fg" style="margin-top:10px"><label>Acción correctiva</label><textarea id="m-accionCorrectiva" rows="3"></textarea></div>
-<div class="fg" style="margin-top:10px"><label>Descripción del hallazgo</label><textarea id="m-descripcion" rows="3"></textarea></div>
+
 <div style="margin-top:14px;display:flex;gap:10px">
 <button class="btn-save" onclick="guardarEdicion()">Guardar cambios</button>
 <button class="btn-edit" style="padding:9px 18px" onclick="cerrarModal()">Cancelar</button>
@@ -354,6 +381,25 @@ let esEncargado = false;
 let charts = {};
 let editId = null;
 let unsubscribeRegistros = null;
+
+// ── Utilidades ──────────────────────────────────────────────
+// Escapa texto escrito por usuarios antes de mostrarlo en la tabla
+function esc(s){
+  return String(s==null ? '' : s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+const val = id => document.getElementById(id).value.trim();
+
+// Los registros viejos guardados como "FA" se tratan como PNC
+function normTipo(t){ return t==='FA' ? 'PNC' : t; }
+function labelTipo(t){ return normTipo(t); }
+
+function ahoraLocal(){
+  const d = new Date(), z = n=>String(n).padStart(2,'0');
+  return {
+    fecha: `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`,
+    hora:  `${z(d.getHours())}:${z(d.getMinutes())}`
+  };
+}
 
 // ── Conexión / autenticación anónima ────────────────────────
 function setConn(estado, texto){
@@ -437,8 +483,7 @@ function setUsuario(){
 }
 
 // ── Folio: se calcula dinámicamente a partir de lo que ya existe ──
-// (ya no depende de un contador guardado aparte, así nunca se desincroniza
-// con lo que realmente hay en la base de datos, incluso después de borrar)
+// Formato: TIPO + año (2 dígitos) + consecutivo, ej. PNC26-001, LA26-002
 function calcularSiguienteFolio(tipo){
   const yy = String(new Date().getFullYear()).slice(-2);
   const regex = new RegExp('^' + tipo + yy + '-(\\d{3})$');
@@ -452,7 +497,6 @@ function calcularSiguienteFolio(tipo){
   });
   let siguiente = max + 1;
   let folio = `${tipo}${yy}-${String(siguiente).padStart(3,'0')}`;
-  // seguro extra: si por alguna razón ya existiera ese folio, sigue avanzando
   while(registros.some(r=>r.folio===folio)){
     siguiente++;
     folio = `${tipo}${yy}-${String(siguiente).padStart(3,'0')}`;
@@ -467,6 +511,145 @@ function actualizarFolio(){
 
 function getSiguienteFolio(tipo){
   return calcularSiguienteFolio(tipo);
+}
+
+// ── Formulario PNC (etiqueta de producto no conforme N4-CC-072) ──
+const PNC_CAMPOS = [
+  'fecha','hora','cantidad','areaDeteccion','modelo','maquina','modulo','noParte','codigo',
+  'rechazadoPor','noFactura','procesoResp','operadorResp',
+  'dispFecha','dispHora','dispResponsable','folioDesviacion','firmaGerente','dispComentarios',
+  'personalRetrabajo','personalMOD','personalMOI','personalMOA',
+  'tiempoRetrabajo','tiempoMOD','tiempoMOI','tiempoMOA',
+  'componenteRetrabajar','materialUsar','costoMateriales','descripcionRetrabajo',
+  'inspeccionadoPor','cantidadAceptada','cantidadRechazada','inspComentarios'
+];
+const PNC_NUM = [
+  'cantidad','personalMOD','personalMOI','personalMOA',
+  'tiempoRetrabajo','tiempoMOD','tiempoMOI','tiempoMOA',
+  'costoMateriales','cantidadAceptada','cantidadRechazada'
+];
+
+// p = prefijo de ids ('p' = formulario principal, 'mp' = ventana de edición)
+function pncFormHTML(p){
+  const I = (id,label,type,attrs,cls)=>
+    `<div class="fg ${cls||''}"><label>${label}</label><input type="${type||'text'}" id="${p}_${id}" ${attrs||''}></div>`;
+  const T = (id,label,rows)=>
+    `<div class="fg span2"><label>${label}</label><textarea id="${p}_${id}" rows="${rows||2}"></textarea></div>`;
+  const N1 = 'min="0" step="1"', N5 = 'min="0" step="0.5"';
+  return `
+<div class="pnc-head">&#9888; Etiqueta de producto no conforme &nbsp;·&nbsp; N4-CC-072 Rev. K</div>
+
+<div class="pnc-sec">Rechazo</div>
+<div class="form-grid3">
+${I('fecha','Fecha','date')}${I('hora','Hora','time')}${I('cantidad','Cantidad','number',N1)}
+</div>
+<div class="form-grid">
+${I('areaDeteccion','Área de detección')}${I('modelo','Modelo')}
+${I('numeroProyecto','Número de proyecto','text','placeholder="Ej. PRY-2024-001"')}${I('nombreProyecto','Nombre de proyecto')}
+${I('maquina','Máquina')}${I('modulo','Módulo')}
+${I('noParte','No. de parte')}${I('codigo','Código')}
+${T('descripcion','Descripción del defecto',3)}
+${I('rechazadoPor','Rechazado por')}${I('noFactura','No. factura')}
+${I('procesoResp','Proceso resp.')}${I('operadorResp','Operador resp.')}
+${I('horasTM','Horas de tiempo muerto <span style="color:#5a7a9a">(turno = 9 h, excedente = tiempo extra)</span>','number','min="0" step="0.5" value="0"')}
+</div>
+
+<div class="pnc-sec">Disposición del material o producto</div>
+<div class="form-grid3">
+${I('dispFecha','Fecha','date')}${I('dispHora','Hora','time')}${I('dispResponsable','Responsable')}
+</div>
+<div class="fg">
+<label>Disposición</label>
+<div class="dept-selector" id="${p}_disp" style="display:flex;flex-wrap:wrap;gap:4px 22px;max-height:none">
+<label class="dept-option"><input type="checkbox" value="Desperdicio"> Desperdicio</label>
+<label class="dept-option"><input type="checkbox" value="Cuarentena o en espera"> Cuarentena o en espera</label>
+<label class="dept-option"><input type="checkbox" value="Retrabajo"> Retrabajo</label>
+<label class="dept-option"><input type="checkbox" value="Aceptado"> Aceptado</label>
+</div>
+</div>
+<div style="margin-top:10px">
+<div class="form-grid">
+${I('folioDesviacion','Folio de desviación')}${I('firmaGerente','Firma de gerente (nombre)')}
+</div>
+<div style="font-size:11px;color:#5a7a9a;margin-top:4px">Folio de desviación y firma de gerente: aplican solo cuando es aceptado el defecto.</div>
+</div>
+<div class="form-grid" style="margin-top:10px">
+${T('dispComentarios','Comentarios',2)}
+</div>
+
+<div class="pnc-sec">Retrabajo (qué se hizo)</div>
+<div class="form-grid">
+${I('personalRetrabajo','Personal involucrado en el retrabajo','text','','span2')}
+</div>
+<div class="form-grid3">
+${I('personalMOD','MOD (personas)','number',N1)}${I('personalMOI','MOI (personas)','number',N1)}${I('personalMOA','MOA (personas)','number',N1)}
+</div>
+<div class="form-grid">
+${I('tiempoRetrabajo','Tiempo de retrabajo (h)','number',N5,'span2')}
+</div>
+<div class="form-grid3">
+${I('tiempoMOD','MOD (horas)','number',N5)}${I('tiempoMOI','MOI (horas)','number',N5)}${I('tiempoMOA','MOA (horas)','number',N5)}
+</div>
+<div class="form-grid">
+${I('componenteRetrabajar','Componente a retrabajar','text','','span2')}
+${I('materialUsar','Material / componentes a usar','text','','span2')}
+${I('costoMateriales','Costo de componentes y materiales usados','number','min="0" step="0.01"','span2')}
+${T('descripcionRetrabajo','Descripción del retrabajo',3)}
+</div>
+
+<div class="pnc-sec">Inspección de retrabajo</div>
+<div class="form-grid">
+${I('inspeccionadoPor','Inspeccionado por','text','','span2')}
+${I('cantidadAceptada','Cantidad aceptada','number',N1)}${I('cantidadRechazada','Cantidad rechazada','number',N1)}
+${T('inspComentarios','Comentarios',2)}
+</div>`;
+}
+
+// Lee los campos propios de la etiqueta PNC
+function leerPNC(p){
+  const o = {};
+  PNC_CAMPOS.forEach(c=>{
+    const v = document.getElementById(`${p}_${c}`).value.trim();
+    o[c] = PNC_NUM.includes(c) ? (v==='' ? null : parseFloat(v)) : v;
+  });
+  o.disposicion = leerDeptos(`${p}_disp`);
+  return o;
+}
+
+function setPNC(p, d){
+  d = d || {};
+  PNC_CAMPOS.forEach(c=>{
+    const v = d[c];
+    document.getElementById(`${p}_${c}`).value = (v===null || v===undefined) ? '' : v;
+  });
+  setDeptos(`${p}_disp`, d.disposicion || []);
+}
+
+function limpiarPNC(p){
+  setPNC(p, {});
+  ['numeroProyecto','nombreProyecto','descripcion'].forEach(c=>{
+    document.getElementById(`${p}_${c}`).value = '';
+  });
+  document.getElementById(`${p}_horasTM`).value = '0';
+  const a = ahoraLocal();
+  document.getElementById(`${p}_fecha`).value = a.fecha;
+  document.getElementById(`${p}_hora`).value  = a.hora;
+}
+
+// ── Mostrar el formulario que corresponde al tipo elegido ───
+function aplicarVistaTipo(){
+  const esPNC = document.getElementById('tipo').value === 'PNC';
+  document.getElementById('formGeneral').style.display = esPNC ? 'none'  : 'block';
+  document.getElementById('formPNC').style.display     = esPNC ? 'block' : 'none';
+}
+function onTipoChange(){
+  actualizarFolio();
+  aplicarVistaTipo();
+}
+function aplicarVistaTipoModal(){
+  const esPNC = document.getElementById('m-tipo').value === 'PNC';
+  document.getElementById('m-formGeneral').style.display = esPNC ? 'none'  : 'block';
+  document.getElementById('m-formPNC').style.display     = esPNC ? 'block' : 'none';
 }
 
 // ── Fase "Otros" ────────────────────────────────────────────
@@ -540,29 +723,44 @@ async function guardar(){
   btn.disabled = true; btn.textContent = 'Guardando...';
 
   try{
-    const tipo        = document.getElementById('tipo').value;
+    const tipo  = document.getElementById('tipo').value;
+    const esPNC = tipo === 'PNC';
     const fechaCierre = document.getElementById('fechaCierre').value;
-    const horas       = parseFloat(document.getElementById('horasTM').value)||0;
 
-    let fase = document.getElementById('fase').value;
-    if(fase === 'Otros'){
-      const otro = document.getElementById('faseOtro').value.trim();
-      if(otro) fase = 'Otros - ' + otro;
+    let numero, proyecto, fase, horas, descripcion, extra = {};
+    if(esPNC){
+      numero      = val('p_numeroProyecto');
+      const nombre = val('p_nombreProyecto');
+      proyecto    = numero + (nombre ? ' - ' + nombre : '');
+      fase        = '';
+      horas       = parseFloat(document.getElementById('p_horasTM').value) || 0;
+      descripcion = document.getElementById('p_descripcion').value;
+      extra.pnc   = leerPNC('p');
+    } else {
+      numero      = val('numeroProyecto');
+      const nombre = val('nombreProyecto');
+      proyecto    = numero + (nombre ? ' - ' + nombre : '');
+      fase        = document.getElementById('fase').value;
+      if(fase === 'Otros'){
+        const otro = val('faseOtro');
+        if(otro) fase = 'Otros - ' + otro;
+      }
+      horas       = parseFloat(document.getElementById('horasTM').value) || 0;
+      descripcion = document.getElementById('descripcion').value;
     }
 
-    const folio            = getSiguienteFolio(tipo);
-    const fechaHoy          = new Date().toISOString().split('T')[0];
-    const fechaRegistroTS   = firebase.firestore.FieldValue.serverTimestamp();
+    const folio     = getSiguienteFolio(tipo);
+    const fechaHoy  = new Date().toISOString().split('T')[0];
 
     await db.collection('registros').add({
       folio,
       tipo,
-      numero:           document.getElementById('numeroProyecto').value.trim(),
-      proyecto:         (document.getElementById('numeroProyecto').value.trim()||'') +
-                        (document.getElementById('nombreProyecto').value.trim() ? ' - '+document.getElementById('nombreProyecto').value.trim() : ''),
-      fase:             fase,
+      numero,
+      proyecto,
+      fase,
       horasTM:          horas,
-      descripcion:      document.getElementById('descripcion').value,
+      descripcion,
+      ...extra,
       deptos:           leerDeptos('deptSelector'),
       estatus:          document.getElementById('estatus').value,
       fechaImpl:        document.getElementById('fechaImpl').value,
@@ -571,7 +769,7 @@ async function guardar(){
       registrador:      usuarioActivo,
       registradorUid:   usuarioUid,
       fechaRegistro:    fechaHoy,
-      fechaRegistroTS:  fechaRegistroTS,
+      fechaRegistroTS:  firebase.firestore.FieldValue.serverTimestamp(),
       historico:        false,
       diasResolucion:   diasEntre(fechaHoy, fechaCierre)
     });
@@ -584,6 +782,7 @@ async function guardar(){
     actualizarTMInfo();
     document.getElementById('fase').value = 'Liberación de dibujo';
     toggleFaseOtro();
+    limpiarPNC('p');
     document.getElementById('estatus').value = 'Abierto';
     document.getElementById('fechaImpl').value = '';
     document.getElementById('fechaCierre').value = '';
@@ -610,21 +809,36 @@ function abrirEdicion(id){
   editId = id;
   document.getElementById('modalTitle').textContent = 'Editar ' + r.folio;
   document.getElementById('m-folio').value = r.folio;
-  document.getElementById('m-tipo').value = r.tipo;
-  document.getElementById('m-numeroProyecto').value = r.numero||'';
-  document.getElementById('m-nombreProyecto').value = (r.proyecto||'').includes(' - ')
+  document.getElementById('m-tipo').value  = normTipo(r.tipo);
+
+  const nombreProy = (r.proyecto||'').includes(' - ')
     ? r.proyecto.split(' - ').slice(1).join(' - ')
     : '';
+
+  // campos generales
+  document.getElementById('m-numeroProyecto').value = r.numero||'';
+  document.getElementById('m-nombreProyecto').value = nombreProy;
   const faseBase = (r.fase||'').startsWith('Otros - ') ? 'Otros' : (r.fase||'Liberación de dibujo');
   document.getElementById('m-fase').value = faseBase;
   document.getElementById('m-faseOtro').value = (r.fase||'').startsWith('Otros - ') ? r.fase.substring(8) : '';
   toggleFaseOtroModal();
   document.getElementById('m-horasTM').value = r.horasTM||0;
+  document.getElementById('m-descripcion').value = r.descripcion||'';
+
+  // campos PNC
+  setPNC('mp', r.pnc);
+  document.getElementById('mp_numeroProyecto').value = r.numero||'';
+  document.getElementById('mp_nombreProyecto').value = nombreProy;
+  document.getElementById('mp_descripcion').value    = r.descripcion||'';
+  document.getElementById('mp_horasTM').value        = r.horasTM||0;
+
+  aplicarVistaTipoModal();
+
+  // seguimiento
   document.getElementById('m-estatus').value = r.estatus;
   document.getElementById('m-fechaImpl').value = r.fechaImpl||'';
   document.getElementById('m-fechaCierre').value = r.fechaCierre||'';
   document.getElementById('m-accionCorrectiva').value = r.accionCorrectiva||'';
-  document.getElementById('m-descripcion').value = r.descripcion||'';
   setDeptos('m-deptSelector', r.deptos||[]);
   document.getElementById('modalOverlay').classList.add('open');
 }
@@ -644,32 +858,46 @@ async function guardarEdicion(){
     return;
   }
   const fechaCierre = document.getElementById('m-fechaCierre').value;
-  const nuevoFolio  = document.getElementById('m-folio').value.trim();
+  const nuevoFolio  = val('m-folio');
   if(!nuevoFolio){ alert('El folio no puede quedar vacío.'); return; }
 
-  let fase = document.getElementById('m-fase').value;
-  if(fase === 'Otros'){
-    const otro = document.getElementById('m-faseOtro').value.trim();
-    if(otro) fase = 'Otros - ' + otro;
+  const tipo = document.getElementById('m-tipo').value;
+  let numero, proyecto, fase, horas, descripcion, extra = {};
+  if(tipo === 'PNC'){
+    numero      = val('mp_numeroProyecto');
+    const nombre = val('mp_nombreProyecto');
+    proyecto    = numero + (nombre ? ' - ' + nombre : '');
+    fase        = '';
+    horas       = parseFloat(document.getElementById('mp_horasTM').value) || 0;
+    descripcion = document.getElementById('mp_descripcion').value;
+    extra.pnc   = leerPNC('mp');
+  } else {
+    numero      = val('m-numeroProyecto');
+    const nombre = val('m-nombreProyecto');
+    proyecto    = numero + (nombre ? ' - ' + nombre : '');
+    fase        = document.getElementById('m-fase').value;
+    if(fase === 'Otros'){
+      const otro = val('m-faseOtro');
+      if(otro) fase = 'Otros - ' + otro;
+    }
+    horas       = parseFloat(document.getElementById('m-horasTM').value) || 0;
+    descripcion = document.getElementById('m-descripcion').value;
   }
-
-  const numero    = document.getElementById('m-numeroProyecto').value.trim();
-  const nombre    = document.getElementById('m-nombreProyecto').value.trim();
-  const proyecto  = numero + (nombre ? ' - ' + nombre : '');
 
   try{
     await db.collection('registros').doc(editId).update({
-      folio:             nuevoFolio,
-      tipo:              document.getElementById('m-tipo').value,
-      numero:            numero,
-      proyecto:          proyecto,
-      fase:              fase,
-      horasTM:           parseFloat(document.getElementById('m-horasTM').value)||0,
+      folio:            nuevoFolio,
+      tipo,
+      numero,
+      proyecto,
+      fase,
+      horasTM:          horas,
+      descripcion,
+      ...extra,
       estatus:          document.getElementById('m-estatus').value,
       fechaImpl:        document.getElementById('m-fechaImpl').value,
       fechaCierre:      fechaCierre,
       accionCorrectiva: document.getElementById('m-accionCorrectiva').value,
-      descripcion:      document.getElementById('m-descripcion').value,
       deptos:           leerDeptos('m-deptSelector'),
       diasResolucion:   diasEntre(r.fechaRegistro, fechaCierre)
     });
@@ -691,23 +919,17 @@ async function eliminarRegistro(id){
   if(!confirm(`¿Eliminar el registro ${r.folio}?\nEsta acción no se puede deshacer.`)) return;
   try{
     await db.collection('registros').doc(id).delete();
-    // el folio se recalcula solo en el próximo listado, no requiere pasos extra
   }catch(e){
     console.error(e);
     alert('Error al eliminar: ' + e.message);
   }
 }
 
-// ── Etiquetas de tipo ────────────────────────────────────
-function labelTipo(tipo){
-  return { FA:'PNC', LA:'LA', BP:'BP', RT:'RT', OB:'OB' }[tipo] || tipo;
-}
-
 // ── Tabla ─────────────────────────────────────────────────
 function renderTabla(){
   const filtroT = document.getElementById('filtroTipo').value;
   const filtroE = document.getElementById('filtroEstatus').value;
-  const filtrados = registros.filter(r=>(!filtroT||r.tipo===filtroT)&&(!filtroE||r.estatus===filtroE));
+  const filtrados = registros.filter(r=>(!filtroT||normTipo(r.tipo)===filtroT)&&(!filtroE||r.estatus===filtroE));
   document.getElementById('emptyState').style.display = filtrados.length ? 'none' : 'block';
   document.getElementById('tablaBody').innerHTML = filtrados.map(r=>{
     const stCls = r.estatus==='Abierto'?'st-abierto':r.estatus==='En Proceso'?'st-proceso':'st-cerrado';
@@ -716,21 +938,22 @@ function renderTabla(){
     const tmStr = turnos>0 ? `${r.horasTM}h (${turnos}T${extra>0?'+'+extra+'h':''})` : `${r.horasTM}h (extra)`;
     let botones = '';
     if(esEncargado){
-      botones += `<button class="btn-edit" onclick="abrirEdicion('${r.id}')">Editar</button>`;
-      botones += `<button class="btn-del" onclick="eliminarRegistro('${r.id}')" title="Eliminar registro">&#x2715; Eliminar</button>`;
+      botones += `<button class="btn-edit" data-id="${esc(r.id)}" onclick="abrirEdicion(this.dataset.id)">Editar</button>`;
+      botones += `<button class="btn-del" data-id="${esc(r.id)}" onclick="eliminarRegistro(this.dataset.id)" title="Eliminar registro">&#x2715; Eliminar</button>`;
     }
     const acciones = botones ? `<div style="display:flex;gap:5px">${botones}</div>` : '<span style="font-size:11px;color:#4a6a8a">—</span>';
-    const folioTxt = r.historico ? `${r.folio} <span style="color:#5a7a9a">(hist.)</span>` : r.folio;
+    const folioTxt = esc(r.folio) + (r.historico ? ' <span style="color:#5a7a9a">(hist.)</span>' : '');
+    const tipoN = normTipo(r.tipo);
     return `<tr>
 <td style="font-family:monospace;font-size:11px">${folioTxt}</td>
-<td><span class="badge badge-${r.tipo}">${labelTipo(r.tipo)}</span></td>
-<td>${r.proyecto||'—'}</td>
-<td style="font-size:11px;max-width:220px">${r.descripcion||'—'}</td>
-<td style="font-size:11px">${depList}</td>
+<td><span class="badge badge-${esc(tipoN)}">${esc(labelTipo(r.tipo))}</span></td>
+<td>${esc(r.proyecto)||'—'}</td>
+<td style="font-size:11px;max-width:220px">${esc(r.descripcion)||'—'}</td>
+<td style="font-size:11px">${esc(depList)}</td>
 <td style="white-space:nowrap">${tmStr}</td>
-<td><span class="badge ${stCls}">${r.estatus}</span></td>
+<td><span class="badge ${stCls}">${esc(r.estatus)}</span></td>
 <td>${r.diasResolucion!==null&&r.diasResolucion!==undefined ? r.diasResolucion+' d' : '—'}</td>
-<td style="font-size:11px;color:#8aa0b8">${r.registrador}</td>
+<td style="font-size:11px;color:#8aa0b8">${esc(r.registrador)}</td>
 <td>${acciones}</td>
 </tr>`;
   }).join('');
@@ -742,7 +965,7 @@ function actualizarKPIs(){
   const totalHoras  = registros.reduce((s,r)=>s+(r.horasTM||0), 0);
   const {turnos:tT, extra:eT} = tmDesglose(totalHoras);
 
-  const horasFallas = registros.filter(r=>r.tipo==='FA'||r.tipo==='RT').reduce((s,r)=>s+(r.horasTM||0), 0);
+  const horasFallas = registros.filter(r=>normTipo(r.tipo)==='PNC'||r.tipo==='RT').reduce((s,r)=>s+(r.horasTM||0), 0);
   const {turnos:tF, extra:eF} = tmDesglose(horasFallas);
 
   const cerrados = registros.filter(r=>r.estatus==='Cerrado'&&r.diasResolucion!==null&&r.diasResolucion!==undefined);
@@ -778,8 +1001,8 @@ function actualizarCharts(){
   });
 
   // G2 Por tipo
-  const tipos=['FA','LA','BP','RT','OB'];
-  const conteos=tipos.map(t=>registros.filter(r=>r.tipo===t).length);
+  const tipos=['PNC','LA','BP','RT','OB'];
+  const conteos=tipos.map(t=>registros.filter(r=>normTipo(r.tipo)===t).length);
   if(charts.g2) charts.g2.destroy();
   charts.g2 = new Chart(document.getElementById('g2'),{
     type:'doughnut',
@@ -787,14 +1010,14 @@ function actualizarCharts(){
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#8aa0b8',font:{size:10},boxWidth:10}}}}
   });
 
-  // G3 Turnos perdidos FA / RT (horas/9)
-  const turnosPorTipo = ['FA','RT'].map(t=>
-    +(registros.filter(r=>r.tipo===t).reduce((s,r)=>s+(r.horasTM||0),0)/TURNO_H).toFixed(2)
+  // G3 Turnos perdidos PNC / RT (horas/9)
+  const turnosPorTipo = ['PNC','RT'].map(t=>
+    +(registros.filter(r=>normTipo(r.tipo)===t).reduce((s,r)=>s+(r.horasTM||0),0)/TURNO_H).toFixed(2)
   );
   if(charts.g3) charts.g3.destroy();
   charts.g3 = new Chart(document.getElementById('g3'),{
     type:'bar',
-    data:{labels:['Falla (FA)','Retrabajo (RT)'],datasets:[{label:'Turnos',data:turnosPorTipo,backgroundColor:['#E24B4A99','#EF9F2799'],borderColor:['#E24B4A','#EF9F27'],borderWidth:1}]},
+    data:{labels:['PNC','Retrabajo (RT)'],datasets:[{label:'Turnos',data:turnosPorTipo,backgroundColor:['#E24B4A99','#EF9F2799'],borderColor:['#E24B4A','#EF9F27'],borderWidth:1}]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:tick,grid:{color:grid}},y:{beginAtZero:true,ticks:{...tick,callback:v=>v+' T'},grid:{color:grid}}}}
   });
 
@@ -817,6 +1040,10 @@ function actualizarCharts(){
 
 // ── Init ──────────────────────────────────────────────────
 document.getElementById('fechaRegistro').value = new Date().toLocaleDateString('es-MX');
+document.getElementById('formPNC').innerHTML   = pncFormHTML('p');
+document.getElementById('m-formPNC').innerHTML = pncFormHTML('mp');
+limpiarPNC('p');
+aplicarVistaTipo();
 actualizarCharts();
 </script>
 </body>
